@@ -15,6 +15,10 @@ INPUT:
 OUTPUT:
   -out    Results: Sequence - Motif - Motif_consensus - Hit_Seq - Hit_position - Hit_score -Threshold
 
+AUTHOR: Christina Azodi
+
+REVISIONS:   Submitted 8/10/2016
+
 """
 
 import os,sys, math
