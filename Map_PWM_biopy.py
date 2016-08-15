@@ -10,6 +10,7 @@ INPUT:
   -fasta     Fasta file with ONE sequence only.
   -AT        ATbias in organism (Arabidopsis = 0.33)
   -GC        GCbias in organism (Arabidopsis = 0.17)
+  -p         Threshold value for false positives (Default = 1e-5)
   -out       Name for output file
 
 OUTPUT:
@@ -27,7 +28,7 @@ from Bio.Seq import Seq
 import numpy as np
 import time
 
-def make_pssm(m, ATbias, GCbias):
+def make_pssm(m, ATbias, GCbias, p):
   """Convert pwm into pssm (position-specific scoring matrices) to use for mapping 
   and calulate thresholds based on lenght and information content of motif"""
   
@@ -48,11 +49,11 @@ def make_pssm(m, ATbias, GCbias):
         # this uses an approximation with a given precision to keep computation cost manageable
   distribution = pssm.distribution(background=background, precision=10**4)
 
-  # Set the threshold to p < 1e-5
-  threshold = distribution.threshold_fpr(0.00001)
+  # Set the threshold to p
+  threshold = distribution.threshold_fpr(p)
   print("Threshold for matching (fpr=0.00001): %3f" % threshold)
 
-  # Set threshold so that you're willing to have 100 false negatives for every 1 false positive.
+  # Alternative threshold method: balance FN with FP (100 false negatives for every 1 false positive)
   #threshold = distribution.threshold_balanced(100) 
   #print("Threshold for matching (fnr/fpr=100): %3f" % threshold)
   
@@ -73,6 +74,11 @@ def mapping(seq_file, pssm, threshold, consensus, motif_name, motif_len):
 if __name__=="__main__":
   start_time = time.time()
 
+  # Set default values
+  ATbias = 0.33
+  GCbias = 0.17
+  p = 0.00001
+
   #Define arguments
   for i in range (1,len(sys.argv),2):
     if sys.argv[i] == '-m':             # pwm sequence file (TAMO)
@@ -83,9 +89,15 @@ if __name__=="__main__":
       GCbias = sys.argv[i+1]
     if sys.argv[i] == '-fasta':         # FASTA file of the sequence
       seq_file = sys.argv[i+1]
+    if sys.argv[i] == '-p':             # threshold (default = 1e-5)
+      p = sys.argv[i+1]
     if sys.argv[i] == '-out':           # Results output name
       out_file = sys.argv[i+1]    
   
+  if len(sys.argv) <= 1:
+    print(__doc__)
+    exit()
+
   #threshold= math.pow(10,-float(sys.argv[2])) # P-val, 5 means -log(n,10)
   out = open(out_file, 'w')
   out.write("Sequence\tMotif\tMotif_consensus\tHit_Seq\tHit_position\tHit_score\tThreshold\n")
@@ -95,7 +107,7 @@ if __name__=="__main__":
     motif_name = f.strip().split("/")[-1]
     m = motifs.read(open(f), "pfm")
     motif_len = len(m)
-    pssm, consensus, threshold = make_pssm(m, ATbias, GCbias)
+    pssm, consensus, threshold = make_pssm(m, ATbias, GCbias, p)
     hits = mapping(seq_file, pssm, threshold, consensus, motif_name, motif_len)
 
   else:
