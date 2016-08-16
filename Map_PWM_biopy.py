@@ -11,6 +11,7 @@ INPUT:
   -AT        ATbias in organism (Arabidopsis = 0.33)
   -GC        GCbias in organism (Arabidopsis = 0.17)
   -p         Threshold value for false positives (Default = 1e-5)
+  -include   File with list of PWMs to include (Default = all)
   -out       Name for output file
 
 OUTPUT:
