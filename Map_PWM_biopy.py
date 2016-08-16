@@ -78,6 +78,7 @@ if __name__=="__main__":
   ATbias = 0.33
   GCbias = 0.17
   p = 0.00001
+  include = "all"
 
   #Define arguments
   for i in range (1,len(sys.argv),2):
@@ -92,7 +93,9 @@ if __name__=="__main__":
     if sys.argv[i] == '-p':             # threshold (default = 1e-5)
       p = sys.argv[i+1]
     if sys.argv[i] == '-out':           # Results output name
-      out_file = sys.argv[i+1]    
+      out_file = sys.argv[i+1] 
+    if sys.argv[i] == '-include':       # List of file names from pwm directory to include (default = all)
+      include = sys.argv[i+1]   
   
   if len(sys.argv) <= 1:
     print(__doc__)
@@ -101,6 +104,13 @@ if __name__=="__main__":
   #threshold= math.pow(10,-float(sys.argv[2])) # P-val, 5 means -log(n,10)
   out = open(out_file, 'w')
   out.write("Sequence\tMotif\tMotif_consensus\tHit_Seq\tHit_position\tHit_score\tThreshold\n")
+
+  # Specify if you only want to include certain pwm's in the directory
+  if include == "all":
+    include_if = os.listdir(f)
+  else:
+    include_if = open(include, 'r').read().splitlines()
+
 
   if f[-4:] == ".pwm":
     #Make PSSM for mapping
@@ -112,13 +122,16 @@ if __name__=="__main__":
 
   else:
     for motif_file in os.listdir(f):
-      motif_name = motif_file.strip().split("/")[-1]
-      print(motif_name)
-      path = f + motif_file
-      m = motifs.read(open(path), "pfm")
-      motif_len = len(m)
-      pssm, consensus, threshold = make_pssm(m, ATbias, GCbias)
-      hits = mapping(seq_file, pssm, threshold, consensus, motif_name, motif_len)
+      if motif_file in include_if:
+        motif_name = motif_file.strip().split("/")[-1]
+        print(motif_name)
+        path = f + motif_file
+        m = motifs.read(open(path), "pfm")
+        motif_len = len(m)
+        pssm, consensus, threshold = make_pssm(m, ATbias, GCbias, p)
+        hits = mapping(seq_file, pssm, threshold, consensus, motif_name, motif_len)
+      else:
+        pass
   end_time = time.time()
   print("Run time: " + str(float(end_time)-float(start_time)))
 
