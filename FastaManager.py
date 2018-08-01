@@ -728,11 +728,11 @@ class fasta_manager:
 		    if inl.startswith('##'):
 		        T1 = inl.strip().split(" ") #split line
 		        gene = T1[1]
-		        oup.write("%s\t" % (gene))
+		        #oup.write("%s\t" % (gene))
 		    elif inl.startswith('#'):
 		        T1 = inl.strip().split(" ") #split line
 		        gene = T1[1]
-		        oup.write("%s\t" % (gene))
+		        #oup.write("%s\t" % (gene))
 		    else:
 			T = inl.strip().split("\t") # tokens
 			#print (T)
@@ -745,10 +745,12 @@ class fasta_manager:
 				R = T[3]
 				
 		        if self.clear_space(T[2]) == "promoter": 			# check if this is the promoter
-				oup.write("%s\t%s\t%s\n" % (C,L,R))
+				oup.write("%s\t%s\t%s\t" % (C,L,R))
+				oup.write("%s\n" % (gene))
 			else:
 			    pass
-		    #oup.write("%s\n" % (gene))	
+		    #print (gene)
+		    	
 		    inl = inp.readline()
 			
 		print "Done!"
