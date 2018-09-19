@@ -694,7 +694,7 @@ class fasta_manager:
 				R = T[3]
 			N = ""						# sequence name
 			n = T[-1].split(";")
-			if "Name" in T[-1]:			# has Name tag
+			if "Name" in T[-1]:			# has Name tag, # refers to last item in list
 				for j in n:
 					if "Name" in j:
 						N = j.split("=")[1]
@@ -711,7 +711,49 @@ class fasta_manager:
 			
 		print "Done!"
 
-
+        def clear_space(self,string): #returns tab-delimited
+	   string = string.strip()
+	   while "  " in string:
+	       string = string.replace("  "," ")
+	   string = string.replace(" ","")
+	   return (string)
+	   
+        def gff_promoter_to_coord(self,gff):
+		inp = open(gff)
+		oup = open(gff+".coord","w")
+		inl = inp.readline()
+		while inl != "":
+		    #gene = ""
+		    #print (gene)
+		    if inl.startswith('##'):
+		        T1 = inl.strip().split(" ") #split line
+		        gene = T1[1]
+		        #oup.write("%s\t" % (gene))
+		    elif inl.startswith('#'):
+		        T1 = inl.strip().split(" ") #split line
+		        gene = T1[1]
+		        #oup.write("%s\t" % (gene))
+		    else:
+			T = inl.strip().split("\t") # tokens
+			#print (T)
+			C = T[0]					# chr
+			if T[6] == "+":				# orientation
+				L = T[3]				# left coord
+				R = T[4]				# right coord
+			else:
+				L = T[4]
+				R = T[3]
+				
+		        if self.clear_space(T[2]) == "promoter": 			# check if this is the promoter
+				oup.write("%s\t%s\t%s\t" % (C,L,R))
+				oup.write("%s\n" % (gene))
+			else:
+			    pass
+		    #print (gene)
+		    	
+		    inl = inp.readline()
+			
+		print "Done!"
 	#
 	# Rename all files in dir, if they have .fa or .fasta extension.
 	#
@@ -2391,6 +2433,8 @@ class fasta_manager:
 		print "    get_gc - calculate GC content"
 		print "    gff_to_coord - convert GFF to coord file for get strech,"
 		print "       NEED: gff"
+		print "    gff_promoter_to_coord - convert GFF to promoter coord file"
+		print "       NEED: gff"
 		print "    fasta_to_oneline - convert fasta file to one line"
 		print "       format. Requires: -fasta. OPT: d"
 		print "    fasta_to_phylip - NEED: fasta, OPT: nlen"
@@ -2684,6 +2728,11 @@ if __name__ == '__main__':
 			print "\nNeed gff file\n"
 			manager.help()
 		manager.gff_to_coord(gff)
+	elif function == "gff_promoter_to_coord":
+	        if gff == "":
+			print "\nNeed gff file\n"
+			manager.help()
+		manager.gff_promoter_to_coord(gff)
 	elif function == "fasta_to_oneline":
 		if fasta == "":
 			print "\nNeed fasta file\n"
