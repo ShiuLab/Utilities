@@ -47,8 +47,8 @@ class qsub_hpc:
             oup.write("%s\n" % "".join(open(post).readlines()))
         oup.close()
     
-    def submit(self,jobs,sidx,wtime,mem,jobname,p,email,logdir,a,wdir="",
-              module="",pre="",post="",i,nnode,ngpu,array):
+    def submit(self,jobs,sidx,wtime,mem,jobname,p,email,logdir,a,i,nnode,ngpu,array,wdir="",
+              module="",pre="",post=""):
         runtype = 0
         if type(jobs) != list:
             runtype = 1
@@ -86,7 +86,7 @@ class qsub_hpc:
                 sidx += 1
     
     def queue(self,jcommand,stime,nsub,juser,jrange,wtime,mem,jobname,p,email,
-            logdir,a,wdir="",module="",pre="",post="",a,i,nnode,ngpu,array):
+            logdir,a,i,nnode,ngpu,array,wdir="",module="",pre="",post=""):
         jdict = {}
         inp = open(jcommand)
         jobs = inp.readlines()
@@ -121,15 +121,16 @@ class qsub_hpc:
                 jseg = jobs[j:j+(nsub-currj)]
                 oup.write("submit %i\t" % len(jseg))
                 print "current %i, submit %i\n" % (currj,len(jseg))
-                self.submit(jseg,j+1,wtime,mem,jobname,p,email,logdir,a,wdir,module,a,i,nnode,ngpu,array)
+                self.submit(jseg,j+1,wtime,mem,jobname,p,email,logdir,a,i,nnode,ngpu,array,wdir,module)
                 j += len(jseg)
+
             else:
                 oup.write("waiting\t")
                 print "waiting\t"
             oup.write("submited so far: %i\n" % j)
             print "submited so far: %i\n" % j
             time.sleep(stime)
-        
+        #submit(self,jobs,sidx,wtime,mem,jobname,p,email,logdir,a,i,nnode,ngpu,array,wdir="",module="",pre="",post=""):
     print "Done!"
 
     def qdel(self,duser,drange):
@@ -414,6 +415,8 @@ if __name__ == '__main__':
             post = sys.argv[i+1]
         elif sys.argv[i] == "-A":
             a = sys.argv[i+1]
+        elif sys.argv[i] == "-i":
+            i = sys.argv[i+1]
         elif sys.argv[i] == "-array":
             array = sys.argv[i+1]
         else:
@@ -425,12 +428,13 @@ if __name__ == '__main__':
         if "" in [c]:
             print "\nNeed cmd line file, user name\n"
             qsub.help()
-        qsub.submit(c,0,w,m,J,p,e,o,a,wd,mo,pre,post,a,i,nnode,ngpu,array)
+        qsub.submit(c,0,w,m,J,p,e,o,a,i,nnode,ngpu,array,wd,mo,pre,post)
     elif f == "queue":
         if "" in [c,u]:
             print "\nNeed cmd line file, user name\n"
             qsub.help()
-        qsub.queue(c,s,n,u,r,w,m,J,p,e,o,a,wd,mo,pre,post,a,i,nnode,ngpu,array)
+        qsub.queue(c,s,n,u,r,w,m,J,p,e,o,a,i,nnode,ngpu,array,wd,mo,pre,post)
+
     elif f == "qdel":
         if r == "" and u == "":
             print "\nNeed range or user name\n"
