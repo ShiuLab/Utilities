@@ -4,7 +4,7 @@ from random import randint
 
 class qsub_hpc:
 
-<<<<<<< HEAD
+
     def write_sh(self,cmd,jobname,sidx,ncpu,h,m,mem,email,wdir,mo,pre,post,a):
         # Write header
         oup = open("%s%i.sh" % (jobname,sidx),"w")
@@ -424,7 +424,7 @@ if __name__ == '__main__':
     else:
         print "\nUnknown function...\n"
         qsub.help()
-=======
+
 	def write_sh(self,cmd,jobname,sidx,ncpu,h,m,mem,email,wdir,mo,pre,post):
 		# Write header
 		oup = open("%s%i.sh" % (jobname,sidx),"w")
@@ -839,4 +839,4 @@ if __name__ == '__main__':
 	else:
 		print ("\nUnknown function...\n")
 		qsub.help()
->>>>>>> 88e81fb6b120c68aa356eb15687e9e24ab93a440
+
