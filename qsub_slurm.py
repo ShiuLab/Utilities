@@ -4,7 +4,7 @@ from random import randint
 
 class qsub_hpc:
 
-    def write_sh(self,cmd,jobname,sidx,p,h,m,mem,email,wd,mo,pre,post,a,i,nnode,ngpu,array):
+    def write_sh(self,cmd,jobname,sidx,p,h,m,mem,email,wd,mo,pre,post,a,inta,nnode,ngpu,array):
         # Write header
         oup = open("%s%i.sb" % (jobname,sidx),"w")
         oup.write('#!/bin/bash')
@@ -19,7 +19,7 @@ class qsub_hpc:
             oup.write("#SBATCH -J %s\n" % jobname)
         if a != "":
             oup.write("#SBATCH -A %s\n" % a)
-        if i != "":
+        if inta != "":
             oup.write("srun --pty /bin/bash")
         if array != "":
             oup.write("#SBATCH --array=%s\n" % array)
@@ -47,7 +47,7 @@ class qsub_hpc:
             oup.write("%s\n" % "".join(open(post).readlines()))
         oup.close()
     
-    def submit(self,jobs,sidx,wtime,mem,jobname,p,email,logdir,a,i,nnode,ngpu,array,wdir="",
+    def submit(self,jobs,sidx,wtime,mem,jobname,p,email,logdir,a,inta,nnode,ngpu,array,wdir="",
               module="",pre="",post=""):
         runtype = 0
         if type(jobs) != list:
@@ -79,14 +79,14 @@ class qsub_hpc:
     
         for i in jobs:
             if i.strip() != '' and i[0] != "#":
-                print "  job %i" % sidx
-                self.write_sh(i,jobname,sidx,p,h,m,mem,email,wdir,mo,pre,post,a,i,nnode,ngpu,array)
+                print("  job %i" % sidx)
+                self.write_sh(i,jobname,sidx,p,h,m,mem,email,wdir,mo,pre,post,a,inta,nnode,ngpu,array)
                 os.system("chmod 755 %s%i.sb" % (jobname,sidx))
                 os.system("sbatch %s%s%i.sb"    % (logdir,jobname,sidx))  
                 sidx += 1
     
     def queue(self,jcommand,stime,nsub,juser,jrange,wtime,mem,jobname,p,email,
-            logdir,a,i,nnode,ngpu,array,wdir="",module="",pre="",post=""):
+            logdir,a,inta,nnode,ngpu,array,wdir="",module="",pre="",post=""):
         jdict = {}
         inp = open(jcommand)
         jobs = inp.readlines()
@@ -98,7 +98,7 @@ class qsub_hpc:
         j = 0
         while j < len(jobs): 
             oup.write("%s\t" % time.ctime())
-            print "%s\t" % time.ctime()
+            print("%s\t" % time.ctime())
             
             #####
             # Check number of jobs in quene so far
@@ -120,26 +120,26 @@ class qsub_hpc:
             if currj < nsub:
                 jseg = jobs[j:j+(nsub-currj)]
                 oup.write("submit %i\t" % len(jseg))
-                print "current %i, submit %i\n" % (currj,len(jseg))
-                self.submit(jseg,j+1,wtime,mem,jobname,p,email,logdir,a,i,nnode,ngpu,array,wdir,module)
+                print("current %i, submit %i\n" % (currj,len(jseg)))
+                self.submit(jseg,j+1,wtime,mem,jobname,p,email,logdir,a,inta,nnode,ngpu,array,wdir,module)
                 j += len(jseg)
 
             else:
                 oup.write("waiting\t")
-                print "waiting\t"
+                print("waiting\t")
             oup.write("submited so far: %i\n" % j)
-            print "submited so far: %i\n" % j
+            print("submited so far: %i\n" % j)
             time.sleep(stime)
         #submit(self,jobs,sidx,wtime,mem,jobname,p,email,logdir,a,i,nnode,ngpu,array,wdir="",module="",pre="",post=""):
-    print "Done!"
+    print("Done!")
 
     def qdel(self,duser,drange):
         #if "" not in [duser,drange]:
-        #   print "Specify either user OR range! Quit!...\n"
+        #   print("Specify either user OR range! Quit!...\n"
         #   sys.exit(0)
         
-        print "User :",duser
-        print "Range:",drange
+        print("User :",duser)
+        print("Range:",drange)
         
         if duser != "":
             os.system("squeue -l -u %s > TMP_qdel" % duser)
@@ -148,11 +148,11 @@ class qsub_hpc:
             dlist = []
             for i in inl:
                 dlist.append(i.split(".")[0])
-            print "Kill:"
+            print("Kill:")
             c = 1
             for i in dlist:
                 try:
-                    print " %i of %i" % (c,len(dlist))
+                    print(" %i of %i" % (c,len(dlist)))
                     os.system("scancel %s" % i)
                     c += 1
                 except ValueError:
@@ -163,10 +163,10 @@ class qsub_hpc:
             b = int(drange[0])
             e = int(drange[1])+1 # inclusive
             for i in range(b,e):
-                print "scancel %s" % i
+                print("scancel %s" % i)
                 os.system("scancel %i" % i)
             
-        print "Done!"
+        print("Done!")
 
     #
     # Take a list of Job IDS in the following format:
@@ -179,10 +179,10 @@ class qsub_hpc:
         
         for i in klist:
             i = i.strip().split(".")[0]
-            print i
+            print(i)
             os.system("scancel %s" % i)
             
-        print "Done!"
+        print("Done!")
 
     def check_running(self,user):
         '''
@@ -229,12 +229,12 @@ class qsub_hpc:
                 elif tmp[4] == "H":
                     countH += 1
                 else:
-                    print "UNK:",tmp[4]
+                    print("UNK:",tmp[4])
 
-        print "Running :",countR
-        print "Queueing:",countQ
-        print "Held    :",countH
-        print "Err     :",countE
+        print("Running :",countR)
+        print("Queueing:",countQ)
+        print("Held    :",countH)
+        print("Err     :",countE)
         flag = ['R','Q','H','E']
         if flagUser:
             if user in UD:
@@ -244,24 +244,24 @@ class qsub_hpc:
                         counts.append(UD[user][i])
                     else:
                         counts.append(0)
-                print "User: %s,  %i running, %i in queue, %i held, %i with error" % \
-                                (user,counts[0],counts[1],counts[2],counts[3])
+                print("User: %s,  %i running, %i in queue, %i held, %i with error" % \
+                                (user,counts[0],counts[1],counts[2],counts[3]))
             else:
-                print "USer: %s, no job..." % user
+                print("USer: %s, no job..." % user)
         else:
-            print "User: [R,Q,H,E,T]"
+            print("User: [R,Q,H,E,T]")
             users = UD.keys()
             users.sort()
             for i in users:
-                print '%s: [' % i,
+                print('%s: [' % i,)
                 T = 0
                 for j in flag:
                     if j in UD[i]:
-                        print UD[i][j],
+                        print(UD[i][j],)
                         T += UD[i][j]
                     else:
-                        print 0,
-                print '%i]' % T
+                        print(0,)
+                print('%i]' % T)
 
         os.system("rm TMP_check_running_log")
     
@@ -279,7 +279,7 @@ class qsub_hpc:
         efiles.sort()
 
         # go through err log files
-        print "With error:"
+        print("With error:")
         eidx = []
         for i in efiles:
             s = os.path.getsize("./%s" % i)
@@ -288,18 +288,18 @@ class qsub_hpc:
                 if s != 0:
                     inp = open(i)
                     inl = inp.readlines()
-                    print " %s:" % i,inl
+                    print(" %s:" % i,inl)
                     eidx.append(idx)
             except ValueError:
-                print " %s:" % i,"job index err"
+                print(" %s:" % i,"job index err")
                 continue
         
-        print "###############"
-        print "Compile new command line. Note that this rely on the presence"
-        print "of the shell script file in the same folder as the err log."
-        print "In addition, it just look for the last non-empty lines in .sh."
-        print "###############"
-        print " %i jobs failed" % len(eidx)
+        print("###############")
+        print("Compile new command line. Note that this rely on the presence")
+        print("of the shell script file in the same folder as the err log.")
+        print("In addition, it just look for the last non-empty lines in .sh.")
+        print("###############")
+        print(" %i jobs failed" % len(eidx))
         oup = open("cmd_%s_witherr" % (jobname),"w")
         for i in eidx:
             # read the shell script
@@ -314,61 +314,62 @@ class qsub_hpc:
                     oup.write("%s\n" % j)
                     break
             
-        print "Command lines of jobs with err: cmd_%s_witherr" % jobname
+        print("Command lines of jobs with err: cmd_%s_witherr" % jobname)
 
-        print "Done!"   
+        print("Done!") 
 
     def rmlb(self,astr):
         astr = astr.strip()
         return astr
 
     def help(self):
-        print "\nFunctions (-f):"
-        print "    submit - create shell script and submit job bsaed on a file"
-        print "       where each line is one job. NEED: c, OPT: w,m,J,p,ei,wd,mo,"
-        print "       pre,post"
-        print "    queue - submit jobs sequentially. NEED:c,u, OPT:s,n,r,w,m,"
-        print "       J,p,e,k,wd,mo"
-        print "    qdel  - delete jobs, NEED: r or u (if want to kill all)"
-        print "    qdel2 - delete jobs based on a kill list (k)"
-        print "    check_running - check how many job have R stat, OPT: u"
-        print "    check_err - check any job error and compile a new cmd line"
-        print "       file,  NEED: J"
-        print ""
-        print "Parameters:"
-        print "    c - the command line file, one line per job, cmd start with #"
-        print "        will not run."
-        print "    e - email, default ''. If given, FAIL, BEGIN, & END will be sent"
-        print "    s - sec between qstat check, default 10"
-        print "    nnode - number of nodes to request, default 1"
-        print "    p - number of CPUs to use, default 1, same as -ncpu"
-        print "    ngpu - number of GPUs to use, default 0"
-        print "    n - number of jobs to submit at a time , default 10"
-        print "    u - which user to monitor"
-        print "    r - jobnum1-jobnum2, jobnum-, or all (default)"
-        print "    w - wtime, in minutes. Defaulit 10 min."
-        print "    wd- working dir"
-        print "    m - mem in GB, default 1"
-        print "    mo- a file or a string with a list of modules to load, if a str,"
-        print "        use ',' as delimiter"
-        print "    J - job name"
-        print "    pre - a file with additional commands common among all jobs to"
-        print "        appended BEFORE the variable command line"
-        print "    post- a file with additional commands common among all jobs to"
-        print "        appended AFTER the variable command line"
-        print "    o - keep all log files (1) or rename to tmp.o/tmp.e (0)"
-        print "    k - a list of job ids to kill"
-        print "    A - name of buy-in node to submit jobs to"
-        print "    array - Range if running an array job (i.e. 1-10)"
-        print "    i - Run in interactive mode, default = '' "
-        print ""
+        print("\nFunctions (-f):")
+        print("    submit - create shell script and submit job bsaed on a file")
+        print("       where each line is one job. NEED: c, OPT: w,m,J,p,ei,wd,mo,")
+        print("       pre,post")
+        print("    queue - submit jobs sequentially. NEED:c,u, OPT:s,n,r,w,m,")
+        print("       J,p,e,k,wd,mo")
+        print("    qdel  - delete jobs, NEED: r or u (if want to kill all)")
+        print("    qdel2 - delete jobs based on a kill list (k)")
+        print("    check_running - check how many job have R stat, OPT: u")
+        print("    check_err - check any job error and compile a new cmd line")
+        print("       file,  NEED: J")
+        print("")
+        print("Parameters:")
+        print("    c - the command line file, one line per job, cmd start with #")
+        print("        will not run.")
+        print("    e - email, default ''. If given, FAIL, BEGIN, & END will be sent")
+        print("    s - sec between qstat check, default 10")
+        print("    nnode - number of nodes to request, default 1")
+        print("    p - number of CPUs to use, default 1, same as -ncpu")
+        print("    ngpu - number of GPUs to use, default 0")
+        print("    n - number of jobs to submit at a time , default 10")
+        print("    u - which user to monitor")
+        print("    r - jobnum1-jobnum2, jobnum-, or all (default)")
+        print("    w - wtime, in minutes. Defaulit 10 min.")
+        print("    wd- working dir")
+        print("    m - mem in GB, default 1")
+        print("    mo- a file or a string with a list of modules to load, if a str,")
+        print("        use ',' as delimiter")
+        print("    J - job name")
+        print("    pre - a file with additional commands common among all jobs to")
+        print("        appended BEFORE the variable command line")
+        print("    post- a file with additional commands common among all jobs to")
+        print("        appended AFTER the variable command line")
+        print("    o - keep all log files (1) or rename to tmp.o/tmp.e (0)")
+        print("    k - a list of job ids to kill")
+        print("    A - name of buy-in node")
+        print("    array - Range if running an array job (i.e. 1-10)")
+        print("    i - Run in interactive mode, default = '' s")
+        print("")
         sys.exit(0)
 
 if __name__ == '__main__':
 
     qsub = qsub_hpc()
-    f = c = u = e = wd = k = mo = pre = post = a = array = i = ""
-    s = n = w = 10
+    f = c = u = e = wd = k = mo = pre = post = a = array = inta = ""
+    s = n = 10
+    w = 600
     m = o = p = nnode = 1
     ngpu = 0
     r = "*"
@@ -396,7 +397,7 @@ if __name__ == '__main__':
         elif sys.argv[i] == "-r":
             r  = sys.argv[i+1]
         elif sys.argv[i] == "-w":
-            w  = int(sys.argv[i+1])
+            w  = int(sys.argv[i+1])*60
         elif sys.argv[i] == "-m":
             m  = int(sys.argv[i+1])
         elif sys.argv[i] == "-J":
@@ -416,42 +417,42 @@ if __name__ == '__main__':
         elif sys.argv[i] == "-A":
             a = sys.argv[i+1]
         elif sys.argv[i] == "-i":
-            i = sys.argv[i+1]
+            inta = sys.argv[i+1]
         elif sys.argv[i] == "-array":
             array = sys.argv[i+1]
         else:
-            print "UNKNOWN FLAG:",sys.argv[i]
-            print "Do -h to get help."
+            print("UNKNOWN FLAG:",sys.argv[i])
+            print("Do -h to get help.")
             sys.exit(0)
 
     if f == "submit":
         if "" in [c]:
-            print "\nNeed cmd line file, user name\n"
+            print("\nNeed cmd line file, user name\n")
             qsub.help()
-        qsub.submit(c,0,w,m,J,p,e,o,a,i,nnode,ngpu,array,wd,mo,pre,post)
+        qsub.submit(c,0,w,m,J,p,e,o,a,inta,nnode,ngpu,array,wd,mo,pre,post)
     elif f == "queue":
         if "" in [c,u]:
-            print "\nNeed cmd line file, user name\n"
+            print("\nNeed cmd line file, user name\n")
             qsub.help()
-        qsub.queue(c,s,n,u,r,w,m,J,p,e,o,a,i,nnode,ngpu,array,wd,mo,pre,post)
+        qsub.queue(c,s,n,u,r,w,m,J,p,e,o,a,inta,nnode,ngpu,array,wd,mo,pre,post)
 
     elif f == "qdel":
         if r == "" and u == "":
-            print "\nNeed range or user name\n"
+            print("\nNeed range or user name\n")
             qsub.help()
         qsub.qdel(u,r)
     elif f == "qdel2":
         if k == "":
-            print "\nNeed kill list\n"
+            print("\nNeed kill list\n")
             qsub.help()
         qsub.qdel2(k)
     elif f == "check_running":
         qsub.check_running(u)
     elif f == "check_err":
         if J == "job":
-            print "\nYou are using the default job name, make sure this is really what"
-            print "you want to check... Go ahead anyway"
+            print("\nYou are using the default job name, make sure this is really what")
+            print("you want to check... Go ahead anyway")
         qsub.check_err(J)
     else:
-        print "\nUnknown function...\n"
+        print("\nUnknown function...\n")
         qsub.help()
