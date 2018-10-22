@@ -30,20 +30,20 @@ class translate:
 		# store sequences into dict
 		manager = FastaManager.fasta_manager()
 
-		print "Load pep file..."
+		print ("Load pep file...")
 		pdict = manager.fasta_to_dict(pep,0)
 
-		print "Load cds file..."
+		print ("Load cds file...")
 		ndict = manager.fasta_to_dict(cds,0)
 		code  = self.get_aa_code()
 
 		oup = open(pep+".cds.fa","w")
 
-		print "Total %i pep sequences:" % len(pdict.keys())
+		print ("Total %i pep sequences:" % len(pdict.keys()))
 		countS = 0
 		for i in pdict.keys():     # each peptide
 			if countS % 1e2 == 0:
-				print " %i x 100" % (countS/1e2)
+				print (" %i x 100" % (countS/1e2))
 			countS = countS+1
 
 			id = i
@@ -54,7 +54,7 @@ class translate:
 			
 			# parse coordinates
 			if id.find("_") == -1:
-				print "No coord delimiter found, skip:",id
+				print ("No coord delimiter found, skip:",id)
 				continue
 
 			id = i.split("_")
@@ -72,7 +72,7 @@ class translate:
 					nt = self.complement(nt)
 					nt = self.reverse2(nt)
 			else:
-				print "NOT in ndict, skip:",id
+				print ("NOT in ndict, skip:",id)
 				continue
 
 			#print ">",aa
@@ -85,10 +85,10 @@ class translate:
 			if seq != "":
 				oup.write(">%s\n%s\n" % (i,seq))
 			else:
-				print " %s ->no sequence..." % i
+				print (" %s ->no sequence..." % i)
 					
 			if firstMis:
-				print " %s ->first AA mismatch" % i
+				print (" %s ->first AA mismatch" % i)
 	
 	
 	def matching(self,code,aa,nt):
@@ -107,7 +107,7 @@ class translate:
 		N = 0
 		for i in range(P,len(aa)):
 			if aa[i] not in code:
-				print "Unknown code:",aa[i]
+				print ("Unknown code:",aa[i])
 				if aa[i] == "B":
 					N += 3
 				else: # such as X
@@ -144,8 +144,8 @@ class translate:
 		# check if the first aa is at the beginning
 		if not nt[:3] in code[aa[0]]:
 			firstMis = 1
-			print "",aa[0]
-			print "",nt[:3]
+			print ("",aa[0])
+			print ("",nt[:3])
 			
 		cn   = 0  # count nt
 
@@ -229,7 +229,7 @@ class translate:
 	def back_translate2(self,pep,nt,v=0):
 		
 		if v:
-			print "\nBack translate:"
+			print ("\nBack translate:")
 		# verify length first
 		plen = 0
 		if pep.find("-") != -1:
@@ -246,7 +246,7 @@ class translate:
 		flag = 0
 		if len(nt) != plen*3:
 			if v:
-				print "Size discrepancy: nt",len(nt),"pep",plen
+				print ("Size discrepancy: nt",len(nt),"pep",plen)
 			flag = 1
 			
 		seq = ""
@@ -262,12 +262,12 @@ class translate:
 					# checking if it translate alright
 					if not codes.has_key(nt[countN:countN+3].upper()):
 						if v:
-							print "Code unknown:",i.upper(),\
-								  nt[countN:countN+3].upper()
+							print ("Code unknown:",i.upper(),\
+								  nt[countN:countN+3].upper())
 					elif codes[nt[countN:countN+3].upper()] != i.upper():
 						if v:
-							print "Discrepancy:",i.upper(),\
-								  nt[countN:countN+3].upper()						
+							print ("Discrepancy:",i.upper(),\
+								  nt[countN:countN+3].upper())					
 					countN += 3
 			
 		return seq, flag
@@ -280,11 +280,11 @@ class translate:
 	# 
 	def translate(self,cds,id="",frame=0,discard=0,indiv=0,lenT=0):
 		
-		print "Read fasta into dict..."
+		print ("Read fasta into dict...")
 		cdict = manager.fasta_to_oneline(cds,1)
 		
 		if id != "":
-			print "Translate:", id
+			print ("Translate:", id)
 			oup = open("%s_F%i.trans" % (id,frame),"w")
 			oup.write(">%s\n" % id)
 			oup.write("%s\n" % self.translate_passed(cdict[id].upper()))
@@ -299,7 +299,7 @@ class translate:
 			count3 = 0
 			countW = 0
 			udict = {}
-			print "Translate each seq..."
+			print ("Translate each seq...")
 			for i in ckeys:
 				if frame == 1:
 					cdict[i] = "NN" + cdict[i]
@@ -308,17 +308,17 @@ class translate:
 				[pep,error,unk_dict] = self.translate_passed2(cdict[i].upper())
 				write = 0
 				if error == 1:
-					print " ERR-length:",i
+					print (" ERR-length:",i)
 					count1 += 1
 				elif error == 2:
-					print " ERR-unk codons:",i
+					print (" ERR-unk codons:",i)
 					count2 += 1
 				else:
 					write = 1
 				
 				# check if there is stop that is not the last residue
 				if pep[:-1].find("*") != -1 and pep[:-1][-1] != "*":
-					print " ERR-inner stop:",i
+					print (" ERR-inner stop:",i)
 					#print pep
 					#sys.exit(0)
 					count3 += 1
@@ -342,17 +342,17 @@ class translate:
 					oup1.write("%s\terror%i\n" % (i,error))
 				countT += 1
 			
-			print "Total %i sequences translated."      % countT
-			print "  %i has length not divisable by 3." % count1
-			print "  %i has inner stop codon(s)."       % count3
-			print "  %i has unknown codons."            % count2
-			print "Discard flag: %i"                    % discard
-			print "  %i in output file"                 % countW
+			print ("Total %i sequences translated."      % countT)
+			print ("  %i has length not divisable by 3." % count1)
+			print ("  %i has inner stop codon(s)."       % count3)
+			print ("  %i has unknown codons."            % count2)
+			print ("Discard flag: %i"                    % discard)
+			print ("  %i in output file"                 % countW)
 						
 			if count2 > 0:
-				print " listed:"
+				print (" listed:")
 				for i in udict:
-					print "",i,udict[i]
+					print ("",i,udict[i])
 
 	#
 	# Break ORFs into subORFs that >= size threshold. All ORF should start with
@@ -360,17 +360,17 @@ class translate:
 	#
 	def suborf(self,orfcds,lenT,check):
 		
-		print "Read sequence file..."
+		print ("Read sequence file...")
 		fdict = manager.fasta_to_dict(orfcds,0)
-		print " total %i\n" % len(fdict.keys())
+		print (" total %i\n" % len(fdict.keys()))
 		
-		print "Iterate throughs sequences..."
+		print ("Iterate throughs sequences...")
 		oup = open(orfcds+".sub","w")
 		countS = 0
 		countT = 0
 		for i in fdict:
 			if countT % 1e4 == 0:
-				print " %i x 10k" % (countT/1e4)
+				print (" %i x 10k" % (countT/1e4))
 			countT += 1
 			#print i
 			# chr|ori|frame|L-R
@@ -386,7 +386,7 @@ class translate:
 				if sid[-1][0] == "":
 					sid[-1] = ["1",sid[-1][2]]
 				else:
-					print "ERR1:",[i]
+					print ("ERR1:",[i])
 					continue
 						
 			L       = int(sid[-1][0])
@@ -398,7 +398,7 @@ class translate:
 				if abs(R-L)+1-3 == len(cds):
 					R = R-3
 				else:
-					print "ERR2:",[i],abs(R-L)+1,len(cds)
+					print ("ERR2:",[i],abs(R-L)+1,len(cds))
 					continue
 			
 			# construct new seq names
@@ -425,8 +425,8 @@ class translate:
 				#print [pep]
 				#print [cds]
 		
-		print "%i sequences, %i suborfs" % (countT,countS)	
-		print "Done!\n"			
+		print ("%i sequences, %i suborfs" % (countT,countS))	
+		print ("Done!\n")		
 	
 	
 	
@@ -437,7 +437,7 @@ class translate:
 	# @param seq	fasta sequence file
 	###
 	def sixpack_simple(self,seq):
-		print "Read fasta into dict:"
+		print ("Read fasta into dict:")
 		fdict = manager.fasta_to_dict(seq,0)
 		
 		oup1 = open("%s.6pack_cds" % seq,"w")
@@ -479,7 +479,7 @@ class translate:
 			oup2.write(">%s_f0\n%s\n>%s_f1\n%s\n>%s_f2\n%s\n" % (i,fp0,i,fp1,i,fp2) +\
 					   ">%s_r0\n%s\n>%s_r1\n%s\n>%s_r2\n%s\n" % (i,rp0,i,rp1,i,rp2))
 					   
-		print "Done!"
+		print ("Done!")
 	
 	#
 	# Batch call six pack
@@ -491,21 +491,21 @@ class translate:
 		oup2  = open("%s_T%i-%im%i.coord" % (seq,lenT,lenT2,met),"w")
 		oup2.write("SeqID\tOri\tFrame\tL\tR\n")
 		
-		print "Read fasta into dict:"
+		print ("Read fasta into dict:")
 		fdict = manager.fasta_to_dict(seq,0)
 		c = 0
 		
-		print "Do 6pack:"
+		print ("Do 6pack:")
 		fkeys = fdict.keys()
 		fkeys.sort()
 		for i in fkeys:
-			print "",i
+			print ("",i)
 			eflag = self.sixpack([i,fdict[i]],lenT,lenT2,met,inc,
 								  oup0,oup1,oup2,verbose)
 			if eflag:
 				break
 		
-		print "Done!"
+		print ("Done!")
 
 	#
 	# sixpack: 6 frame translation
@@ -528,16 +528,16 @@ class translate:
 		
 		if verbose:
 			if oup1 == "":
-				print "\nSequence:",seq
+				print ("\nSequence:",seq)
 			else:
-				print "\nSequence:",seq[0]
-			print "lenT    :",lenT
-			print "lenT2   :",lenT2
-			print "Met_flag:",met
-			print "TL_inc  :",inc
+				print ("\nSequence:",seq[0])
+			print ("lenT    :",lenT)
+			print ("lenT2   :",lenT2)
+			print ("Met_flag:",met)
+			print ("TL_inc  :",inc)
 		
 		if inc % 3 != 0:
-			print "ERR: TL_inc has to be multiple of 3"
+			print ("ERR: TL_inc has to be multiple of 3")
 			if oup1 == "":
 				sys.exit(0)
 			else:
@@ -558,10 +558,10 @@ class translate:
 			countT = 0
 			
 			if verbose:
-				print "  split_orf:",len(s)
+				print ("  split_orf:",len(s))
 			for i in s:
 				if verbose and countT != 0 and countT % 10000 == 0:
-					print "   %i x 10k" % (countT/10000)
+					print ("   %i x 10k" % (countT/10000))
 				countT += 1
 				#print "ORF:",i
 				if i == "":
@@ -653,13 +653,13 @@ class translate:
 			skeys = sdict.keys()
 			skeys.sort()
 			if verbose:
-				print "  qualified:",len(sdict)
+				print ("  qualified:",len(sdict))
 			for i in skeys:
 				if verbose:
-					print "----"
-					print idx,ori,f,i,sdict[i][0]
-					print sdict[i][1]
-					print sdict[i][2]
+					print ("----")
+					print (idx,ori,f,i,sdict[i][0])
+					print (sdict[i][1])
+					print (sdict[i][2])
 				
 				# Get rid of sequences that have ? or X
 				if sdict[i][1].find("?") != -1 or sdict[i][1].find("X") != -1:
@@ -709,7 +709,7 @@ class translate:
 		###################
 							
 		if verbose:
-			print "Read sense strand..."
+			print ("Read sense strand...")
 		
 		# output stream not specified, must be direct call
 		if oup1 == "":
@@ -733,42 +733,42 @@ class translate:
 			sense = string.joinfields(sense.split("\n"),"")
 			
 		if verbose:
-			print "Reverse..."
+			print ("Reverse...")
 		antis = self.reverse2(sense)		
 		if verbose:
-			print "Complement..."
+			print ("Complement...")
 		antis = self.complement(antis)
 		
 		# sense, frame 0,1,2
 		if verbose:
-			print "Translate.."
-			print " sense, frame 0"
+			print ("Translate..")
+			print (" sense, frame 0")
 		s0 = self.translate_passed(sense,0,inc)[0]
 		#print s0
 		split(idx,"+",sense,s0,0,0,0,verbose)
 
 		if verbose:
-			print " sense, frame 1"
+			print (" sense, frame 1")
 		s1 = self.translate_passed(sense,1,inc)[0]
 		split(idx,"+",sense,s1,1,0,0,verbose)
 		
 		if verbose:
-			print " sense, frame 2"
+			print (" sense, frame 2")
 		s2 = self.translate_passed(sense,2,inc)[0]
 		split(idx,"+",sense,s2,2,0,0,verbose)
 		# antisense, frame 0,1,2
 		if verbose:
-			print " antisense, frame 0"
+			print (" antisense, frame 0")
 		a0 = self.translate_passed(antis,0,inc)[0]
 		split(idx,"-",antis,a0,0,1,len(antis),verbose)
 		
 		if verbose:
-			print " antisense, frame 1"
+			print (" antisense, frame 1")
 		a1 = self.translate_passed(antis,1,inc)[0]
 		split(idx,"-",antis,a1,1,1,len(antis),verbose)
 		
 		if verbose:
-			print " antisense, frame 2"
+			print (" antisense, frame 2")
 		a2 = self.translate_passed(antis,2,inc)[0]
 		split(idx,"-",antis,a2,2,1,len(antis),verbose)
 		
@@ -776,7 +776,7 @@ class translate:
 		#oup2.close()
 
 		if verbose:
-			print "Done!"	
+			print ("Done!")	
 
 	def translate_passed(self,seq,frame=0,inc=1000):
 		
@@ -789,8 +789,8 @@ class translate:
 		
 		window_size = 1000000
 		if len(seq) > window_size:
-			print "  nt_len: %i" % len(seq)
-			print "   break into %i chucks" % (len(seq)/window_size+1)
+			print ("  nt_len: %i" % len(seq))
+			print ("   break into %i chucks" % (len(seq)/window_size+1))
 		
 		inc = inc*1000
 		
@@ -829,7 +829,7 @@ class translate:
 	#
 	def exclude(self,orf_coord,exc_coord):
 	
-		print "Read %s...\n" % exc_coord
+		print ("Read %s...\n" % exc_coord)
 		inp = open(exc_coord)
 		inl = inp.readline()
 		# {idx:{L:R}}
@@ -849,14 +849,14 @@ class translate:
 				E[i] = {L:R}
 			inl = inp.readline()
 		
-		print "Generated sorted exclusion coordinates...\n"
+		print ("Generated sorted exclusion coordinates...\n")
 		Esorted = {}
 		for i in E:
 			ikeys = E[i].keys()
 			ikeys.sort()
 			Esorted[i] = ikeys
 			
-		print "Read %s and generate outputs..." % orf_coord
+		print ("Read %s and generate outputs..." % orf_coord)
 		inp = open(orf_coord)
 		oup = open(orf_coord+".qualified","w")
 		inp.readline() # first line is header
@@ -866,7 +866,7 @@ class translate:
 		c = 0
 		while inl != "":
 			if countA % 1e4 == 0:
-				print " %i x 10k" % (countA/1e4)
+				print (" %i x 10k" % (countA/1e4))
 			countA += 1
 			S   = inl.split("\t")
 			L   = int(S[3])
@@ -895,7 +895,7 @@ class translate:
 			
 			inl = inp.readline()
 		
-		print " total %i, %i qualified\n" % (countA,countQ)
+		print (" total %i, %i qualified\n" % (countA,countQ))
 		
 	
 	#
@@ -941,7 +941,7 @@ class translate:
 			else:
 				oup.write(">%s\n%s\n" % (i,fdict[i]))
 		
-		print "%i sequences, %i rc'ed" % (len(fkeys), countR)
+		print ("%i sequences, %i rc'ed" % (len(fkeys), countR))
 
 	#
 	# Do reverse complement on sequences based on passed names. If no name
@@ -972,9 +972,9 @@ class translate:
 		
 		for i in names:
 			if names[i] == 0:
-				print "Not found:",i
+				print ("Not found:",i)
 		
-		print "%i sequences, %i rc'ed" % (len(fkeys), countR)
+		print ("%i sequences, %i rc'ed" % (len(fkeys), countR))
 	
 	#
 	# @param call internal[0,default] or outside[1].
@@ -1012,7 +1012,7 @@ class translate:
 			if a[0] == "\n":
 				a = a[1:] + "\n"
 		except IndexError:
-			print "IndexErr:",a
+			print ("IndexErr:",a)
 		return a
 
 	
@@ -1028,7 +1028,7 @@ class translate:
 		unk_codon = {}
 		codes = self.get_nt_code()
 		if frame < 0 or frame > 2:
-			print "Frame should be 0-2, quit..."
+			print ("Frame should be 0-2, quit...")
 			sys.exit(0)
 
 		if len(seq)%3 != 0:
@@ -1071,7 +1071,7 @@ class translate:
 		c = 0
 		for i in range(0,len(inl),3):
 			if c%1e4 == 0:
-				print " %i x10k" % (c/1e4)
+				print (" %i x10k" % (c/1e4))
 			c += 1
 			n = inl[i][1:].strip().split(" ")
 			q = n[0] + "|" + n[2].split("|")[0]
@@ -1128,7 +1128,7 @@ class translate:
 				o2.write(">%s\n%s\n" % (q2,qS2))
 				o2.write(">%s\n%s\n" % (s2,sS2))
 				
-		print "Done!"
+		print ("Done!")
 				
 	##
 	# Check the correspondance between cds and pep entries
@@ -1173,7 +1173,7 @@ class translate:
 				# rid of the files
 				os.system("rm tmp*")
 
-		print "%i match, %i mismatch" % (countM,countS)
+		print ("%i match, %i mismatch" % (countM,countS))
 
 	#
 	# This function takes the pair list, get the sequences for pairs, do a bl2seq
@@ -1199,29 +1199,29 @@ class translate:
 					pdict[llist[1]] = [llist[0],score]
 				else:
 					if score > pdict[llist[1]][1]:
-						print llist[1]
-						print pdict[llist[1]]
-						print [llist[0],score]
+						print (llist[1])
+						print (pdict[llist[1]])
+						print ([llist[0],score])
 						pdict[llist[1]] = [llist[0],score]
 						
 			else:
 				if not pdict.has_key(llist[1]):
 					pdict[llist[1]] = [llist[0],1]
 				else:
-					print "Redundant:",llist[1]
+					print ("Redundant:",llist[1])
 								   
 			inline = inp.readline()
 		
 		# read fasta 
 		fasta = manager.fasta_to_dict(fasta,0)
 		
-		print "Conduct bl2seq:"
+		print ("Conduct bl2seq:")
 		oup = open(pairs+".mredun","w")
 		for i in pdict.keys():
 			id2 = i
 			id1 = pdict[i][0]
 
-			print "%s,%s" % (id1,id2)
+			print ("%s,%s" % (id1,id2))
 			oup_tmp = open("tmp1.fa","w")
 			oup_tmp.write(">%s\n%s\n" % (id1,fasta[id1]))
 			oup_tmp = open("tmp2.fa","w")
@@ -1318,28 +1318,28 @@ class translate:
 	##
 	def pseudo_cds(self,pep,cdna):
 		
-		print "Make sure the order is correct, or this thing won't work\n"
+		print ("Make sure the order is correct, or this thing won't work\n")
 		
-		print "Read sequences..."
-		print " PEP :",pep
-		print " cDNA:",cdna
+		print ("Read sequences...")
+		print (" PEP :",pep)
+		print (" cDNA:",cdna)
 		pdict = manager.fasta_to_dict(pep,0)
 		cdict = manager.fasta_to_dict(cdna,0)
 		pcode = self.get_aa_code()
 		oup   = open("%s.mod" % cdna,"w")
 		
-		print "Compare pep and cdna sequences..."
+		print ("Compare pep and cdna sequences...")
 		c = 0
 		for i in pdict:
 			if c % 1000 == 0:
-				print " %i x 1000" % (c/1000)
+				print (" %i x 1000" % (c/1000))
 			c += 1
 			
 			try:
 				pseq = pdict[i]
 				cseq = cdict[i]
 			except KeyError:
-				print "Seq missing:",i 
+				print ("Seq missing:",i )
 			
 			cdna_mod = ""
 			pos  = 0
@@ -1365,7 +1365,7 @@ class translate:
 			
 			oup.write(">%s\n%s\n" % (i,cdna_mod))
 		
-		print "Done!"
+		print ("Done!")
 	
 	#
 	# Assume gene and pep has the same sequence id. Try dynamic programming
@@ -1377,9 +1377,9 @@ class translate:
 		gdict = manager.fasta_to_dict(gene,0)
 		ntcode= self.get_nt_code()
 		for i in gdict:
-			print i
+			print (i)
 			if i not in pdict:
-				print "ERR - not in pdict:",i
+				print ("ERR - not in pdict:",i)
 			else:
 				g = gdict[i]
 				p = pdict[i]
@@ -1427,9 +1427,9 @@ class translate:
 						#print "",k,p[k],a[j][k]
 				
 				c = 0
-				print "   0  1  2  3"
+				print ("   0  1  2  3")
 				for j in a:
-					print c,j
+					print (c,j)
 					c += 1
 				
 				########
@@ -1455,40 +1455,40 @@ class translate:
 						
 						
 						if aa == p[k[1]] and k[1] not in matched:
-							print "%s:%s" % (g[k[0]],aa)
-							print "  ",aseq,gseq
+							print ("%s:%s" % (g[k[0]],aa))
+							print ("  ",aseq,gseq)
 							if aseq != "":
 								align.append([aseq,gseq])
 							matched.append(k[1])
 							aseq = aa
 							gseq = g[k[0]]
 						else:
-							print "%s -"  % g[k[0]]
+							print ("%s -"  % g[k[0]])
 							gseq += g[k[0]]
 						
 				
-				print "%s:%s" % (g[k[0]],aa)
-				print "  ",aseq,gseq
+				print ("%s:%s" % (g[k[0]],aa))
+				print ("  ",aseq,gseq)
 				align.append([aseq,g[-3:]])
 				
 				# correct codons with less than one nt
 				for j in range(len(align)-1):
-					print j,align[j]
+					print (j,align[j])
 					clen = len(align[j][1])
 					if clen != 3:
-						print align[j][1]
-						print align[j+1][1]
+						print (align[j][1])
+						print (align[j+1][1])
 						align[j][1] = align[j][1] + align[j+1][1][:3-clen]
 						align[j+1][1] = align[j+1][1][3-clen:]
 						aa = ntcode[align[j][1]]
 						if aa == align[j][0]:
-							print "  ok"
+							print ("  ok")
 						else:
-							print "  problem"
+							print ("  problem")
 				for j in align:
-					print j
+					print (j)
 					
-		print "Done!"
+		print ("Done!")
 	
 	#
 	# Traceback step of dynamic programming
@@ -1571,57 +1571,57 @@ class translate:
 
 	def help(self):
 
-		print " -f   function:"
-		print "       bt - based on pep sequence to get the cds"
-		print "          REQUIRES: pep,cds,exclstop"
-		print "       tl - Translate a nt seq. REQUIRES: -cds"
-		print "          OPTIONAL: -id, -frame, -discard, sp"
-		print "       tl_mindless - take an alignment pair file from ParseBlast"
-		print "          parse_align4 and translate the sequence pairs STRAIGHT"
-		print "          NEED:align_seq"
-		print "       validate  - compare cds and pep file to see if they are"
-		print "          synchronized. Requires: -cds, -pep. Optional:"
-		print "          frame"
-		print "       bl2_pairs - blast pairs of sequences. REQUIRES: fasta,"
-		print "          pairs,blast_dir,prog"
-		print "       sixpack - 6 frame tl for ONE sequence, REQUIRES: fasta,"
-		print "          OPTIONAL:T,T2,m,c,verbose"
-		print "       sixpack_simple - 6 frame translation for multiple seq."
-		print "          do not care about stop, NEED: fasta"
-		print "       batch_6pack - pass more than one sequences at a time."
-		print "          Same requirements as sixpack"
-		print "       suborf -get alternative orfs within orfs that start with"
-		print "          Met. NEED: cds, OPT: T, check"
-		print "       exclude - generate a list of ORFs after exclusion. NEED:"
-		print "          oc,ec"
-		print "       rc - reverse complement of a seq. REQUIRES: fasta"
-		print "       rc2 - reverse complement based on names, need: fasta "
-		print "       batch_rc - batch rc, NEED: fasta, OPT: name"
-		print "       gene_2_cds - need: gene,pep"
-		print " -align_seq output of ParseBlast.parse_align4"
-		print " -pep peptide seq fasta file, for back_translate, the seq header"
-		print "      have to specify the starting pos of the corresponding cds"
-		print " -cds fasta file for cds"
-		print " -gene gene sequence"
-		print " -id  seq id, for translating one sequence in a fasta file"
-		print " -frame 0 [default], 1, or 2"
-		print " -fasta seqeunce file"
-		print " -pairs a list of pairs"
-		print " -discard throw away erroneous translations"
-		print " -T   length cutoff, lower bound, default 25"
-		print " -T2  length threshold, upper bound, default 10000"
-		print " -m   1st met as the beginning of protein seq [1, default] or "
-		print "      get all 'sub-ORFs' starting with met in the full length"
-		print "      ORFs [2] (NOT WORKING!!!!) or get the longest [0]"
-		print " -c   increment of window size for sixpack, default 30 (kb)"
-		print " -oc  orf coordinates"
-		print " -ec  exclusion coordinates"
-		print " -exclstop - default no [0], or rid of stop [1]"
-		print " -sp  empty for universal code, f for fungi"
-		print " -check check for length agreement."
-		print " -verbose give additional info [1] or not [0,default]"
-		print " -n   file with names of sequences to modify"
-		print ""
+		print (" -f   function:")
+		print ("       bt - based on pep sequence to get the cds")
+		print ("          REQUIRES: pep,cds,exclstop")
+		print ("       tl - Translate a nt seq. REQUIRES: -cds")
+		print ("          OPTIONAL: -id, -frame, -discard, sp")
+		print ("       tl_mindless - take an alignment pair file from ParseBlast")
+		print ("          parse_align4 and translate the sequence pairs STRAIGHT")
+		print ("          NEED:align_seq")
+		print ("       validate  - compare cds and pep file to see if they are")
+		print ("          synchronized. Requires: -cds, -pep. Optional:")
+		print ("          frame")
+		print ("       bl2_pairs - blast pairs of sequences. REQUIRES: fasta,")
+		print ("          pairs,blast_dir,prog")
+		print ("       sixpack - 6 frame tl for ONE sequence, REQUIRES: fasta,")
+		print ("          OPTIONAL:T,T2,m,c,verbose")
+		print ("       sixpack_simple - 6 frame translation for multiple seq.")
+		print ("          do not care about stop, NEED: fasta")
+		print ("       batch_6pack - pass more than one sequences at a time.")
+		print ("          Same requirements as sixpack")
+		print ("       suborf -get alternative orfs within orfs that start with")
+		print ("          Met. NEED: cds, OPT: T, check")
+		print ("       exclude - generate a list of ORFs after exclusion. NEED:")
+		print ("          oc,ec")
+		print ("       rc - reverse complement of a seq. REQUIRES: fasta")
+		print ("       rc2 - reverse complement based on names, need: fasta ")
+		print ("       batch_rc - batch rc, NEED: fasta, OPT: name")
+		print ("       gene_2_cds - need: gene,pep")
+		print (" -align_seq output of ParseBlast.parse_align4")
+		print (" -pep peptide seq fasta file, for back_translate, the seq header")
+		print ("      have to specify the starting pos of the corresponding cds")
+		print (" -cds fasta file for cds")
+		print (" -gene gene sequence")
+		print (" -id  seq id, for translating one sequence in a fasta file")
+		print (" -frame 0 [default], 1, or 2")
+		print (" -fasta seqeunce file")
+		print (" -pairs a list of pairs")
+		print (" -discard throw away erroneous translations")
+		print (" -T   length cutoff, lower bound, default 25")
+		print (" -T2  length threshold, upper bound, default 10000")
+		print (" -m   1st met as the beginning of protein seq [1, default] or ")
+		print ("      get all 'sub-ORFs' starting with met in the full length")
+		print ("      ORFs [2] (NOT WORKING!!!!) or get the longest [0]")
+		print (" -c   increment of window size for sixpack, default 30 (kb)")
+		print (" -oc  orf coordinates")
+		print (" -ec  exclusion coordinates")
+		print (" -exclstop - default no [0], or rid of stop [1]")
+		print (" -sp  empty for universal code, f for fungi")
+		print (" -check check for length agreement.")
+		print (" -verbose give additional info [1] or not [0,default]")
+		print (" -n   file with names of sequences to modify")
+		print ("")
 		sys.exit(0)
 
 
@@ -1689,93 +1689,93 @@ if __name__ == '__main__':
 		elif sys.argv[i] == "-align_seq":
 			align_seq = sys.argv[i+1]
 		else:
-			print "\nUnknown flag:",sys.argv[i]
-			print " -h for help"
+			print ("\nUnknown flag:",sys.argv[i])
+			print (" -h for help")
 					
 	if function == "bt":
 		if pep == "" or cds == "":
-			print "\nRequires fasta files for polypeptide and coding sequences\n"
+			print ("\nRequires fasta files for polypeptide and coding sequences\n")
 			trans.help()
 		trans.bt(pep,cds,exclstop)
 	elif function == "tl":
 		if cds == "":
-			print "\nRequires fasta file\n"
+			print ("\nRequires fasta file\n")
 			trans.help()
 		trans.translate(cds,id,frame,discard)
 	elif function == "tl_mindless":
 		if align_seq == "":
-			print "\nRequires alignment seq file\n"
+			print ("\nRequires alignment seq file\n")
 			trans.help()
 		trans.tl_mindless(align_seq,T)
 	elif function == "validate":
 		if cds == "" or pep == "":
-			print "\nRequires cds and pep files\n"
+			print ("\nRequires cds and pep files\n")
 			trans.help()
 		trans.validate(cds,pep,frame)
 	elif function == "bl2_pairs":
 		if "" in [fasta, pairs, blast_dir, prog]:
-			print "\nRequires fasta, pair list, blast_dir, and prog\n"
+			print ("\nRequires fasta, pair list, blast_dir, and prog\n")
 			trans.help()
 		trans.bl2_pairs(fasta,pairs,blast_dir,prog)
 	elif function == "pseudo_cds":
 		if "" in [pep, cds]:
-			print "\nRequires pep and cds\n"
+			print ("\nRequires pep and cds\n")
 			trans.help()
 		trans.pseudo_cds(pep,cds)	
 	elif function == "sixpack":
 		if "" in [fasta]:
-			print "\nRequires fasta\n"
+			print ("\nRequires fasta\n")
 			trans.help()
 		trans.sixpack(fasta,T,T2,m,inc,verbose)
 	elif function == "sixpack_simple":
 		if "" in [fasta]:
-			print "\nRequires fasta\n"
+			print ("\nRequires fasta\n")
 			trans.help()
 		trans.sixpack_simple(fasta)
 	elif function == "suborf":
 		if "" in [cds]:
-			print "\nRequires cds seq\n"
+			print ("\nRequires cds seq\n")
 			trans.help()
 		trans.suborf(cds,T,check)
 	elif function == "exclude":
 		if "" in [ec,oc]:
-			print "\nRequires excluded and orf coord files\n"
+			print ("\nRequires excluded and orf coord files\n")
 			trans.help()
 		trans.exclude(oc,ec)
 	elif function == "rc":
 		if "" in [fasta]:
-			print "\nRequires fasta\n"
+			print ("\nRequires fasta\n")
 			trans.help()
 		trans.rc(fasta,call=1)
 	elif function == "rc2":
 		if "" in [fasta]:
-			print "\nRequires fasta\n"
+			print ("\nRequires fasta\n")
 			trans.help()
 		trans.rc2(fasta)
 	elif function == "batch_rc":
 		if "" in [fasta]:
-			print "\nRequires fasta\n"
+			print ("\nRequires fasta\n")
 			trans.help()
 		trans.batch_rc(fasta,name)
 	elif function == "batch_6pack":
 		if "" in [fasta]:
-			print "\nRequires fasta\n"
+			print ("\nRequires fasta\n")
 			trans.help()		
 		trans.batch_6pack(fasta,T,T2,m,inc,verbose)
 	elif function == "help":
 		trans.help()
 	elif function == "gene_2_cds":
 		if "" in [gene,pep]:
-			print "\nRequires gene and pep seq files\n"
+			print ("\nRequires gene and pep seq files\n")
 			trans.help()		
 		trans.gene_2_cds(gene,pep)
 	elif function == "test":
 		trans.test()
 	else:
 		if function == "":
-			print "\nNeed to specify function\n"
+			print ("\nNeed to specify function\n")
 		else:
-			print "\nUnknown function:",function
+			print ("\nUnknown function:",function)
 		trans.help()
 
 """

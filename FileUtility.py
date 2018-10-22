@@ -51,12 +51,12 @@ class file_util:
 				for k in cdict[j]:
 					oup.write("%s\t%s\n" % (j,k))
 		
-		print "Done!"
+		print ("Done!")
 	
 	
 	def merge_list(self,file1,file2):
 		
-		print "Read:",file1
+		print ("Read:",file1)
 		inp = open(file1)
 		oup = open("%s.with.%s" % (file1,file2),"w")
 		mdict = {}
@@ -65,9 +65,9 @@ class file_util:
 			mdict[self.rmlb(inl)] = 0
 			oup.write(inl)
 			inl = inp.readline()
-		print " %i entries" % len(mdict.keys())
+		print (" %i entries" % len(mdict.keys()))
 		
-		print "\nRead:",file2
+		print ("\nRead:",file2)
 		inp = open(file2)
 		inl = inp.readline()
 		add = 0
@@ -77,13 +77,13 @@ class file_util:
 				mdict[self.rmlb(inl)] = 0
 				oup.write(inl)
 			inl = inp.readline()
-		print " %i added" % add
+		print (" %i added" % add)
 		
-		print "Done!"
+		print ("Done!")
 		
 	def join(self,file1,file2):
 		
-		print "Generate dict:", file1
+		print ("Generate dict:", file1)
 		inp = open(file1)
 		dict1 = {}
 		inl = inp.readline()
@@ -95,7 +95,7 @@ class file_util:
 				count1 += 1
 			inl = inp.readline()
 		
-		print "Join with:", file2
+		print ("Join with:", file2)
 		inp = open(file2)
 		oup = open("merged","w")
 		inl = inp.readline()
@@ -109,14 +109,14 @@ class file_util:
 					L.append(dict1[L[0]])
 					oup.write("%s\n" % string.joinfields(L,"\t"))
 				except TypeError:
-					print L
+					print (L)
 				countJ += 1
 			inl = inp.readline()
 		
-		print "File1 entries :",count1
-		print "File2 entries :",count2
-		print "Joined entries:",countJ
-		print "Done!"
+		print ("File1 entries :",count1)
+		print ("File2 entries :",count2)
+		print ("Joined entries:",countJ)
+		print ("Done!")
 		
 	# swap the first two columns
 	def swap_col(self,target):
@@ -158,7 +158,7 @@ class file_util:
 					del(L[j])
 				oup.write("%s\n" % (string.joinfields(L,"\t")))
 			inl = inp.readline()
-		print "Done!"
+		print ("Done!")
 	
 	#
 	# Delete all lines containing the passed names
@@ -166,7 +166,7 @@ class file_util:
 	def del_line(self,target,name):		
 		# generate a name dict
 		ndict = self.file_to_dict(name,0)
-		print "Total %i names to delete" % len(ndict.keys())
+		print ("Total %i names to delete" % len(ndict.keys()))
 		
 		# go through lines in target file
 		inp = open(target,"r")
@@ -188,8 +188,8 @@ class file_util:
 				
 			inl = inp.readline()
 		
-		print "Total %i lines in target, %i deleted" % (countT,countR)
-		print "Done!"
+		print ("Total %i lines in target, %i deleted" % (countT,countR))
+		print ("Done!")
 
 	#
 	# Mark all lines containing the passed names
@@ -197,7 +197,7 @@ class file_util:
 	def mark_line(self,target,name):		
 		# generate a name dict
 		ndict = self.file_to_dict(name,0)
-		print "Total %i names to mark" % len(ndict.keys())
+		print ("Total %i names to mark" % len(ndict.keys()))
 		
 		# go through lines in target file
 		inp = open(target,"r")
@@ -225,8 +225,8 @@ class file_util:
 				
 			inl = inp.readline()
 		
-		print "Total %i lines in target, %i marked" % (countT,countR)
-		print "Done!"
+		print ("Total %i lines in target, %i marked" % (countT,countR))
+		print ("Done!")
 
 	
 	#
@@ -240,7 +240,7 @@ class file_util:
 	#
 	def twinselect(self,target,name,outfile,allT=0,allN=0):
 		
-		print "Note that names not in the target will NOT have output"
+		print ("Note that names not in the target will NOT have output")
 		
 		if outfile == "":
 			outfile = "%s_%s" % (target,name)
@@ -276,7 +276,7 @@ class file_util:
 						oup.write(inl)
 			inl = inp.readline()
 		
-		print "Done!"
+		print ("Done!")
 
 	##
 	# Get specified columns from a tab-delimited file and order them based
@@ -294,13 +294,13 @@ class file_util:
 			oup = open("%s.col%s" % (table,column),"w")
 			column = [int(column)]
 			
-		print "Get column(s):",column
+		print ("Get column(s):",column)
 		
 		inl = inp.readline()
 		
 		if len(inl.split("\t")) < max(column):
-			print "Column number too large, there are only %i columns. Quit!"%\
-				len(inl.split("\t"))
+			print ("Column number too large, there are only %i columns. Quit!"%\
+				len(inl.split("\t")))
 			sys.exit(0)
 		countL = 0	
 		while inl != "":
@@ -311,15 +311,15 @@ class file_util:
 				for j in column:
 					tmp.append(llist[j-1])
 			except:
-				print "Funny line:",j-1
-				print ">>",llist
-				print "skip!"
+				print ("Funny line:",j-1)
+				print (">>",llist)
+				print ("skip!")
 							
 			oup.write("%s\n" % string.joinfields(tmp,"\t"))
 			countL += 1
 			inl = inp.readline()
-		print "Total %i lines." % countL
-		print "Done!"
+		print ("Total %i lines." % countL)
+		print ("Done!")
 	
 	#
 	# If multiple matches, just take the first
@@ -368,7 +368,7 @@ class file_util:
 	def file_to_dict(self,infile,style=1):
 
 		if not style in [0,1,2,3,4,5,6,7]:
-			print "Unknown parsing style, QUIT!"
+			print ("Unknown parsing style, QUIT!")
 			sys.exit(0)
 			
 		adict  = {}
@@ -386,7 +386,7 @@ class file_util:
 			
 			llist = inline.split("\t")
 			if len(llist)<2 and style not in [0,6]:
-				print "Only one token, can't be processed with specified style!"
+				print ("Only one token, can't be processed with specified style!")
 				return {}
 
 			if style == 5:
@@ -429,7 +429,7 @@ class file_util:
 				elif L[1] not in adict[L[0]]:
 					adict[L[0]][L[1]] = L[2:]
 				else:
-					print "Redun:",L
+					print ("Redun:",L)
 			inline = inp.readline()
 
 		return adict
@@ -462,11 +462,11 @@ class file_util:
 				flist.append(inline)
 			elif style == 1:
 				if inline.find(delim) == -1:
-					print "Delimiter not found in inline:",delim
+					print ("Delimiter not found in inline:",delim)
 				else:
 					flist.append(inline.split(delim))
 			else:
-				print "Unknown style, file is not loaded to the list..."
+				print ("Unknown style, file is not loaded to the list...")
 
 			inline = inp.readline()
 
@@ -485,7 +485,7 @@ class file_util:
 			i = i + ext
 			os.system("cp %s%s %s" % (t_dir,i,d_dir))
 			
-		print "Done!"
+		print ("Done!")
 
 	##
 	# This function replace 1st tokens out of a file based on a passed name
@@ -516,7 +516,7 @@ class file_util:
 		inp = open(names,"r")
 		inl = inp.readline()
 		ndict = {}
-		print "Read names..."
+		print ("Read names...")
 		while inl != "":
 			L = self.rmlb(inl).split("\t")
 			ndict[L[1]] = L[0]
@@ -534,7 +534,7 @@ class file_util:
 		inp = open(target,"r")
 		inl = inp.readline()
 		countT = countF = 0
-		print "Replace target entries..."
+		print ("Replace target entries...")
 		while inl != "":
 			L = self.rmlb(inl).split("\t")
 			countT += 1
@@ -548,8 +548,8 @@ class file_util:
 			oup.write(string.joinfields(L,"\t")+"\n")
 			inl = inp.readline()
 		
-		print "Total %i entries in target file" % countT
-		print "      %i with new names" % countF
+		print ("Total %i entries in target file" % countT)
+		print ("      %i with new names" % countF)
 		
 	
 	#
@@ -578,7 +578,7 @@ class file_util:
 			oup.write("%s\n" % ostr)
 			inl = inp.readline()
 		
-		print "Token replaced in %i instances." % c
+		print ("Token replaced in %i instances." % c)
 	
 	# Replace any string occurred, no requirement in format
 	def replace_any(self,target,names):
@@ -590,7 +590,7 @@ class file_util:
 		c = 0
 		while inl != "":
 			if c % 100 == 0:
-				print " %i x 100" % (c/100)
+				print (" %i x 100" % (c/100))
 			#print [inl]
 			for j in ndict:
 				d = ndict[j]
@@ -601,7 +601,7 @@ class file_util:
 			oup.write(inl)
 			inl = inp.readline()
 			c += 1
-		print "Done!"
+		print ("Done!")
 				
 	#
 	# Replace any string, VERY DANGEROUS, PROBABLY SHOULD NOT BE USED.
@@ -622,7 +622,7 @@ class file_util:
 			oup.write(inl)
 			inl = inp.readline()
 		
-		print "Token replaced in %i instances." % c
+		print ("Token replaced in %i instances." % c)
 		
 	def merge_all(self,matrix1,matrix2,t1,t2,outfile):
 		
@@ -634,7 +634,7 @@ class file_util:
 			if L[t1] not in uid:
 				uid[L[t1]] = [self.rmlb(inl),"-"]
 			else:
-				print "Redun1:",L[t2]			
+				print ("Redun1:",L[t2])		
 			inl = inp.readline()
 		
 		inp = open(matrix2)
@@ -646,14 +646,14 @@ class file_util:
 			elif uid[L[t2]][1] == "-":
 				uid[L[t2]][1] = self.rmlb(inl)
 			else:
-				print "Redun2:",L[t2]
+				print ("Redun2:",L[t2])
 			inl = inp.readline()
 		
 		oup = open(outfile,"w")
 		for i in uid:
 			oup.write("%s\t%s\n" % (uid[i][0],uid[i][1]))
 			
-		print "Done!"
+		print ("Done!")
 	
 	#
 	# Name can be redundant, suitable for small target file
@@ -678,8 +678,8 @@ class file_util:
 				oup.write("%s\t-\n"  % L[0])
 			inl = inp.readline()
 		
-		print "Total %i, found %i" % (countT,countF)
-		print "Done!"
+		print ("Total %i, found %i" % (countT,countF))
+		print ("Done!")
 	
 	#
 	# Similar to select. But much simpler and faster, only search first token.
@@ -692,18 +692,18 @@ class file_util:
 		if outfile == "":
 			outfile = target+".selected"
 		
-		print "Target  :",target
-		print "NameFile:",names
-		print "OutFile :",outfile
-		print ""
+		print ("Target  :",target)
+		print ("NameFile:",names)
+		print ("OutFile :",outfile)
+		print ("")
 		
 		# construct name dict
-		print "Construct name dict..."
+		print ("Construct name dict...")
 		names = self.file_to_dict(names,0)
-		print " %i names" % len(names.keys())
+		print (" %i names" % len(names.keys()))
 
 		# go through target file
-		print "Read target file..."
+		print ("Read target file...")
 		inp = open(target)
 		oup = open(outfile,"w")
 		inl = inp.readline()
@@ -718,17 +718,17 @@ class file_util:
 				oup.write("\t".join(L)+"\n")
 				countF += 1
 				if countF % 1e4 == 0:
-					print " %i x 10k" % (countF/1e4)
+					print (" %i x 10k" % (countF/1e4))
 				names[L[0]] = 1
 			
 			inl = inp.readline()
 		oup.close()
 		
-		print " %i found" % countF
+		print (" %i found" % countF)
 		#for i in names:
 		#	if names[i] != 1:
 		#		print i
-		print "\nDone!"
+		print ("\nDone!")
 		
 	
 	
@@ -754,13 +754,13 @@ class file_util:
 		if M == 0:
 			tdict = self.file_to_dict(target,2)  
 			if tdict == {}:
-				print "Deal with file with only one token..."
-			 	tdict = self.file_to_dict(target,0)
-			 	tmp   = {}
-			 	for i in tdict:
-			 		tmp[i] = [i]
-			 	tdict = tmp
-			print len(tdict.keys())
+				print ("Deal with file with only one token...")
+				tdict = self.file_to_dict(target,0)
+				tmp   = {}
+				for i in tdict:
+				    tmp[i] = [i]
+				tdict = tmp
+			print (len(tdict.keys()))
 			#for i in tdict:
 			#	print i, tdict[i]
 		# or, based on the specified idx
@@ -792,7 +792,7 @@ class file_util:
 	
 		countN = 0
 		countT = 0
-		print "In name file but not in target file:"
+		print ("In name file but not in target file:")
 		inp = open(names,"r")
 		oup = open(outfile,"w")
 		inl = inp.readline()
@@ -813,7 +813,7 @@ class file_util:
 			countT += 1
 			inl = inp.readline()
 				
-		print "Name file: %i names, %i not in target" % (countT,countN)
+		print ("Name file: %i names, %i not in target" % (countT,countN))
 
 	#
 	# This is originally written for compressed chr sequences. This function
@@ -823,18 +823,18 @@ class file_util:
 		
 		flist  = os.listdir(t_dir)
 		fnames = []
-		print "Decompress:"
+		print ("Decompress:")
 		for i in flist:
-			print "",i
+			print ("",i)
 			if i[-3:] == ".gz":
 				fnames.append(i[:-3])
 				os.system("gunzip %s" % i)
 		
 		fstr = string.joinfields(fnames," ")
-		print "Concatenate files..."
+		print ("Concatenate files...")
 		os.system("cat %s > %s" % (fstr,outfile))
 		
-		print "Done!"
+		print ("Done!")
 	
 	#
 	# delete files. It's up to the user to specify postfix, this is not very
@@ -860,13 +860,13 @@ class file_util:
 			oup.write("%s" % string.joinfields(lines[R[0]:R[1]],""))
 			C = C+1
 		
-		print "Done!"
+		print ("Done!")
 		
 	def batch_move(self,names,src,dest,P):
 		
-		print "Source dir :",src
-		print "Destination:",dest
-		print "File ext   :",P
+		print ("Source dir :",src)
+		print ("Destination:",dest)
+		print ("File ext   :",P)
 		
 		if src[-1] == "/":
 			src = src[:-1]
@@ -874,17 +874,17 @@ class file_util:
 			dest = dest[:-1]
 		
 		nlist = futil.file_to_list(names,0,"\t")
-		print "Move %i files:" % len(nlist)
+		print ("Move %i files:" % len(nlist))
 		countF = 1
 		for i in nlist:
 			if countF % 10 == 0:
-				print " %i x 10" % (countF/10)
+				print (" %i x 10" % (countF/10))
 				
 			if P != "":
 				i = i + "." + P
 			os.system("mv %s/%s %s" % (src,i,dest))
 			countF += 1
-		print "Done!"
+		print ("Done!")
 		
 	#
 	# Exchange col in a two col file
@@ -899,7 +899,7 @@ class file_util:
 			oup.write("%s\t%s\n" % (L[1],L[0]))
 			inl = inp.readline()
 		
-		print "Done!"
+		print ("Done!")
 		
 		
 	
@@ -909,17 +909,17 @@ class file_util:
 		flist.sort()
 		colH = []*len(flist) # col header
 		rowD = {}            # row dict
-		print "%i files in local dir" % len(flist)
+		print ("%i files in local dir" % len(flist))
 		
-		print "Go through files..."
+		print ("Go through files...")
 		countF = 0
 		for i in flist:
-			print i
+			print (i)
 			inp = open(i)
 			# first line is header			
 			inl = self.rmlb(inp.readline()).split("\t")
 			colH.append(inl[1])
-			print "",inl[1]
+			print ("",inl[1])
 			inl = self.rmlb(inp.readline())
 			while inl != "":
 				L = self.rmlb(inl).split("\t")
@@ -929,7 +929,7 @@ class file_util:
 				inl = inp.readline()
 			countF += 1
 		
-		print "Generate output..."
+		print ("Generate output...")
 		rKeys = rowD.keys()
 		rKeys.sort()
 		oup = open("table_join","w")
@@ -937,7 +937,7 @@ class file_util:
 		for i in rKeys:
 			oup.write("%s\t%s\n" % (i,string.joinfields(rowD[i],"\t")))
 		
-		print "Done!"
+		print ("Done!")
 	
 	def survey(self,infile,col):
 		
@@ -961,11 +961,11 @@ class file_util:
 			inl = inp.readline()
 		
 		for i in D:
-			print "Col:",i
+			print ("Col:",i)
 			for j in D[i]:
-				print "",j
+				print ("",j)
 		
-		print "Done!"
+		print ("Done!")
 	
 	def rmlb(self,astr):
 		if astr[-2:] == "\r\n":
@@ -997,7 +997,7 @@ class file_util:
 			elif c not in D[r]:
 				D[r][c] = 1
 			else:
-				print "Redun 2nd col for a given row name:",r,c
+				print ("Redun 2nd col for a given row name:",r,c)
 		
 		# Generate output
 		oup = open(infile+".matrix","w")
@@ -1026,82 +1026,82 @@ class file_util:
 			oup.write("\n")
 		
 		oup.close()
-		print "Done!"
+		print ("Done!")
 		
 
 	
 	def help(self):
-		print " -f function"
-		print "    copy - copy a set of files. REQUIRES: -t, OPTIONAL: -d,-n,-e"
-		print "    list_to_matrix - Convert a 2 col file to a matrix, NEED: i"
-		print "    replace - replace the first token in the first file by a"
-		print "        name file with [new][old] arrangement. REQUIRES: i,j"
-		print "        OPTIONAL: o, F, tokens"
-		print "    replace_all - replace any token in a tab delimited file that"
-		print "    replace_any - replace any string. NEED: i,j"
-		print "        is defined in name file. REQUIRES: i,j."
-		print "    del_line - delete any line containing token(s) with the"
-		print "        specified names. REQUIRES: i,j"
-		print "    mark_line - mark any line containing tokens(s) in the name"
-		print "        file. REQUIRE: i,j"
-		print "    del_col - delete columns, NEED: i,c"
-		print "    swap_col - swap the first two col. NEED: i"
-		print "    select - get lines of target file based on passed names."
-		print "        REQUIRES: i,j,o. OPTIONAL F,M,T,u,p"
-		print "    select2 - simpler select. NEED: i,j,o, OPT: ss"
-		print "    select3 - allow redundant j. NEED: i,j,o"
-		print "    join - join two two-col files based on the 1st token."
-		print "        REQUIRES: i,j"
-		print "    join_tables - join all 2 column files in the working dir"
-		print "        file should have [id][whatever]"
-		print "    get_column - get a particular column (c) from file (i),"
-		print "        will sort if c is multiple, OPTIONAL: D"
-		print "    anneal - decompress gz files in a dir (d) and concatenate"
-		print "    dredun - delete redundant, REQUIRES: i,c"
-		print "    delete - delete files specified in a name file, REQUIRES: i"
-		print "        OPTIONAL: P"
-		print "    split  - NEED: i,F"
-		print "    exchange - exchange columns in a two col file, REQUIRES: i"
-		print "    batch_move - move a lot of files. NEED: i, t, d, OPTIONAL: p"
-		print "    merge_list - merge 2 one column files together, no redun"
-		print "        NEED: i,j"
-		print "    merge_all - merge 2 matrix based on a particular col. NEED"
-		print "        i,j,t1.t2,o"
-		print "    twinselect - select based on the 1st 2 tokens. NEED: i,j,"
-		print "        OPTIONAL: o,allT, allN"
-		print "    get_groups - file1 [group][commonid], file2 [commonid][whatever]"
-		print "        NEED: i,j"
-		print "    survey - check the content of columns, NEED: i, c"
-		print " -i input file 1. The target file, or name file for batch_move"
-		print " -j input file 2. The name file"
-		print " -t target directory, source directory"
-		print " -t1 column token index for matrix 1"
-		print " -t2 column token index for matrix 2"
-		print " -d destination directory, default ./"
-		print " -n file names. default *"
-		print " -e file name extension need to add '.', default empty string"
-		print " -o output file name"
-		print " -orderc ordering for columns"
-		print " -orderr ordering for rows"
-		print " -F in select, force output of whatever specfieid in name."
-		print "    default, 0, won't do this."
-		print "    in replace, force output even if not replaced, defaut 0"
-		print "    in split, split into this number of files"
-		print " -c the column number NOTE: NOT zero-index-based, specify multi"
-		print "    columns by using ',' as separator"
-		print " -D delimiter"
-		print " -M the column to match"
-		print " -T the columns to get, separated by ',', default get all"
-		print "    NOT IMPLEMENTED"
-		print " -P postfix for file names"
-		print " -p allow period in gene name or not"
-		print " -u inclusive, multiple hits in the target index is appended"
-		print " -allT all targets, default 0"
-		print " -allN all names, default 0"
-		print " -tokens the indices of the columns to replace, separated by ','"
-		print " -m name file format, 0:[new][old] (default), 1:[old][new]"
-		print " -ss For select2, strip the empty space in strings in target 1st col"
-		print ""
+		print (" -f function")
+		print ("    copy - copy a set of files. REQUIRES: -t, OPTIONAL: -d,-n,-e")
+		print ("    list_to_matrix - Convert a 2 col file to a matrix, NEED: i")
+		print ("    replace - replace the first token in the first file by a")
+		print ("        name file with [new][old] arrangement. REQUIRES: i,j")
+		print ("        OPTIONAL: o, F, tokens")
+		print ("    replace_all - replace any token in a tab delimited file that")
+		print ("    replace_any - replace any string. NEED: i,j")
+		print ("        is defined in name file. REQUIRES: i,j.")
+		print ("    del_line - delete any line containing token(s) with the")
+		print ("        specified names. REQUIRES: i,j")
+		print ("    mark_line - mark any line containing tokens(s) in the name")
+		print ("        file. REQUIRE: i,j")
+		print ("    del_col - delete columns, NEED: i,c")
+		print ("    swap_col - swap the first two col. NEED: i")
+		print ("    select - get lines of target file based on passed names.")
+		print ("        REQUIRES: i,j,o. OPTIONAL F,M,T,u,p")
+		print ("    select2 - simpler select. NEED: i,j,o, OPT: ss")
+		print ("    select3 - allow redundant j. NEED: i,j,o")
+		print ("    join - join two two-col files based on the 1st token.")
+		print ("        REQUIRES: i,j")
+		print ("    join_tables - join all 2 column files in the working dir")
+		print ("        file should have [id][whatever]")
+		print ("    get_column - get a particular column (c) from file (i),")
+		print ("        will sort if c is multiple, OPTIONAL: D")
+		print ("    anneal - decompress gz files in a dir (d) and concatenate")
+		print ("    dredun - delete redundant, REQUIRES: i,c")
+		print ("    delete - delete files specified in a name file, REQUIRES: i")
+		print ("        OPTIONAL: P")
+		print ("    split  - NEED: i,F")
+		print ("    exchange - exchange columns in a two col file, REQUIRES: i")
+		print ("    batch_move - move a lot of files. NEED: i, t, d, OPTIONAL: p")
+		print ("    merge_list - merge 2 one column files together, no redun")
+		print ("        NEED: i,j")
+		print ("    merge_all - merge 2 matrix based on a particular col. NEED")
+		print ("        i,j,t1.t2,o")
+		print ("    twinselect - select based on the 1st 2 tokens. NEED: i,j,")
+		print ("        OPTIONAL: o,allT, allN")
+		print ("    get_groups - file1 [group][commonid], file2 [commonid][whatever]")
+		print ("        NEED: i,j")
+		print ("    survey - check the content of columns, NEED: i, c")
+		print (" -i input file 1. The target file, or name file for batch_move")
+		print (" -j input file 2. The name file")
+		print (" -t target directory, source directory")
+		print (" -t1 column token index for matrix 1")
+		print (" -t2 column token index for matrix 2")
+		print (" -d destination directory, default ./")
+		print (" -n file names. default *")
+		print (" -e file name extension need to add '.', default empty string")
+		print (" -o output file name")
+		print (" -orderc ordering for columns")
+		print (" -orderr ordering for rows")
+		print (" -F in select, force output of whatever specfieid in name.")
+		print ("    default, 0, won't do this.")
+		print ("    in replace, force output even if not replaced, defaut 0")
+		print ("    in split, split into this number of files")
+		print (" -c the column number NOTE: NOT zero-index-based, specify multi")
+		print ("    columns by using ',' as separator")
+		print (" -D delimiter")
+		print (" -M the column to match")
+		print (" -T the columns to get, separated by ',', default get all")
+		print ("    NOT IMPLEMENTED")
+		print (" -P postfix for file names")
+		print (" -p allow period in gene name or not")
+		print (" -u inclusive, multiple hits in the target index is appended")
+		print (" -allT all targets, default 0")
+		print (" -allN all names, default 0")
+		print (" -tokens the indices of the columns to replace, separated by ','")
+		print (" -m name file format, 0:[new][old] (default), 1:[old][new]")
+		print (" -ss For select2, strip the empty space in strings in target 1st col")
+		print ("")
 		sys.exit(0)
 
 
@@ -1174,138 +1174,138 @@ if __name__ == '__main__':
 		elif sys.argv[i] == "-ss":
 			ss        = int(sys.argv[i+1])
 		else:
-			print "Unknown flag:",sys.argv[i]
+			print ("Unknown flag:",sys.argv[i])
 			sys.exit(0)
 
 	if function == "copy":
 		if t_dir == "":
-			print "\nNeed to specify target directory\n"
+			print ("\nNeed to specify target directory\n")
 			futil.help()
 		futil.copy(t_dir,d_dir,name,ext)
 	elif function == "list_to_matrix":
 		if file1 == "":
-			print "\nNeed to specify input file\n"
+			print ("\nNeed to specify input file\n")
 			futil.help()
 		futil.list_to_matrix(file1,orderr,orderc)
 	elif function == "replace":
 		if file1 == "" or file2 == "":
-			print "\nNeed to specify input files\n"
+			print ("\nNeed to specify input files\n")
 			futil.help()
 		futil.replace(file1,file2,outfile,F,tokens)
 	elif function == "replace_any":
 		if file1 == "" or file2 == "":
-			print "\nNeed to specify input files\n"
+			print ("\nNeed to specify input files\n")
 			futil.help()
 		futil.replace_any(file1,file2)
 	elif function == "replace_all":
 		if file1 == "" or file2 == "":
-			print "\nNeed to specify input files\n"
+			print ("\nNeed to specify input files\n")
 			futil.help()
 		futil.replace_all(file1,file2,m)
 	elif function == "select":
 		if file1 == "" or file2 == "" or outfile == "":
-			print "\nNeed to specify input and output files\n"
+			print ("\nNeed to specify input and output files\n")
 			futil.help()
 		futil.select(file1,file2,outfile,F,M,T,u,p)
 	elif function == "select2":
 		if file1 == "" or file2 == "" or outfile == "":
-			print "\nNeed to specify input and output files\n"
+			print ("\nNeed to specify input and output files\n")
 			futil.help()
 		futil.select2(file1,file2,outfile,ss)
 	elif function == "select3":
 		if file1 == "" or file2 == "" or outfile == "":
-			print "\nNeed to specify input and output files\n"
+			print ("\nNeed to specify input and output files\n")
 			futil.help()
 		futil.select3(file1,file2,outfile)
 	elif function == "get_column":
 		if file1 == "" or c == "":
-			print "\nNeed to specify input file and column number\n"
+			print ("\nNeed to specify input file and column number\n")
 			futil.help()
 		futil.get_column(file1,c,delim)
 	elif function == "anneal":
 		if d_dir == "" or outfile == "":
-			print "\nNeed to specify directory and output name\n"
+			print ("\nNeed to specify directory and output name\n")
 			futil.help()
 		futil.anneal(d_dir,outfile)
 	elif function == "dredun":
 		# c used to be an int. But I changed it to string for get_column. 
 		# Didn't do anything to change this funciton. NEED TO CHECK!
 		if file1 == "" or c == "":
-			print "\nNeed to specify directory and output name\n"
+			print ("\nNeed to specify directory and output name\n")
 			futil.help()
 		futil.dredun(file1,c)
 	elif function == "delete":
 		if file1 == "":
-			print "\nNeed to specify name file\n"
+			print ("\nNeed to specify name file\n")
 			futil.help()
 		futil.delete(file1,P)
 	elif function == "split":
 		if file1 == "" and F == 0:
-			print "\nNeed to specify file and split factor\n"
+			print ("\nNeed to specify file and split factor\n")
 			futil.help()
 		futil.split(file1,F)
 	elif function == "batch_move":
 		if file1 == "" and t_dir == "" or d_dir == "":
-			print "\nNeed to specify name file, target and dest dir\n"
+			print ("\nNeed to specify name file, target and dest dir\n")
 			futil.help()
 		futil.batch_move(file1,t_dir,d_dir,P)	
 	elif function == "exchange":
 		if file1 == "":
-			print "\nNeed to specify file\n"
+			print ("\nNeed to specify file\n")
 			futil.help()
 		futil.exchange(file1)	
 	elif function == "del_line":
 		if file1 == "":
-			print "\nNeed to specify files\n"
+			print ("\nNeed to specify files\n")
 			futil.help()
 		futil.del_line(file1,file2)	
 	elif function == "mark_line":
 		if file1 == "":
-			print "\nNeed to specify files\n"
+			print ("\nNeed to specify files\n")
 			futil.help()
 		futil.mark_line(file1,file2)	
 	elif function == "del_col":
 		if file1 == "" or c == "":
-			print "\nNeed to specifiy files\n"
+			print ("\nNeed to specifiy files\n")
 			futil.help()
 		futil.del_col(file1,c)	
 	elif function == "join":
 		if "" in [file1,file2]:
-			print "\nNeed to specify files\n"
+			print ("\nNeed to specify files\n")
 			futil.help()
 		futil.join(file1,file2)	
 	elif function == "merge_list":
 		if "" in [file1,file2]:
-			print "\nNeed to specify files\n"
+			print ("\nNeed to specify files\n")
 			futil.help()
 		futil.merge_list(file1,file2)	
 	elif function == "merge_all":
 		if "" in [file1,file2,t1,t2,outfile]:
-			print "\nNeed to specify files, output, and tokens\n"
+			print ("\nNeed to specify files, output, and tokens\n")
 			futil.help()
 		futil.merge_all(file1,file2,t1,t2,outfile)	
 	elif function == "twinselect":
 		if "" in [file1,file2]:
-			print "\nNeed to specify files\n"
+			print ("\nNeed to specify files\n")
 			futil.help()
 		futil.twinselect(file1,file2,outfile,allT,allN)
 	elif function == "swap_col":
 		if "" in [file1]:
-			print "\tNeed Need to specify input file\n"
+			print ("\tNeed Need to specify input file\n")
 			futil.help()
 		futil.swap_col(file1)			
 	elif function == "join_tables":
 		futil.join_tables()
 	elif function == "get_groups":
 		if "" in [file1,file2]:
-			print "Need 2 input files"
+			print ("Need 2 input files")
 			futil.help()
 		futil.get_groups(file1,file2)			
 	elif function == "survey":
 		if "" in [file1,c]:
-			print "Need input file and col numbers"
+			print ("Need input file and col numbers")
 			futil.help()
 		futil.survey(file1,c)			
 	else:
-		print "\nUnknown function...\n"
+		print ("\nUnknown function...\n")
 		futil.help()

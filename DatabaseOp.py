@@ -67,14 +67,14 @@ def get_config(configFile,operation):
 ##
 def connect(config):
         global connection;
-        print "Establish connection..."
+        print ("Establish connection...")
         
         connection = pg.connect(dbname = config["dbname"],
                                                         host   = config["host"],
                                                         port   = config["port"],
                                                         user   = config["user"])
-        print "   Host = "+ connection.host
-        print "     DB = "+ connection.db
+        print ("   Host = "+ connection.host)
+        print ("     DB = "+ connection.db)
         #print "   Port = %i" % connection.port
         #print " Status = %i\n" % connection.status
         return connection;
@@ -85,11 +85,11 @@ def connect(config):
 def qconnect(config):
 
         global connection
-        print "Establish quick connection..."
+        print ("Establish quick connection...")
 
         connection = pg.connect(dbname = config["dbname"])
-        print " Host    :",connection.host    
-        print " Database:",connection.db
+        print (" Host    :",connection.host )   
+        print (" Database:",connection.db)
 
         return connection
 
@@ -104,7 +104,7 @@ def qconnect(config):
 ##
 def configConnect(configFile, operation):
         global connection
-        print "Establish connection.."
+        print ("Establish connection..")
         configLines = open(configFile,"r").readlines()
 
         #store lines into a dict
@@ -142,8 +142,8 @@ def configConnect(configFile, operation):
                                                                 port   = int(config["port"]),
                                                                 user   = config["user"])
                 
-        print "   Host = "+ connection.host
-        print "     DB = "+ connection.db
+        print ("   Host = "+ connection.host)
+        print ("     DB = "+ connection.db)
         #print "   Port = %i" % connection.port
         #print " Status = %i\n" % connection.status
 
@@ -167,7 +167,7 @@ def close():
 def select(queryStr,flag=0):
 
         if flag:
-                print queryStr
+                print (queryStr)
         qTuple = (connection.query(queryStr)).getresult()
 
         return qTuple
@@ -177,7 +177,7 @@ def select2(fields,table,flag=0):
 
         queryStr = "SELECT %s FROM %s" % (fields,table)
         if flag:
-                print queryStr
+                print (queryStr)
         qTuple = (connection.query(queryStr)).getresult()
 
         return qTuple
@@ -204,13 +204,13 @@ def createTable(tbName, fields):
                         queryStr = queryStr+j+" "
                 queryStr = queryStr[:-1]+","
         queryStr = queryStr[:-1]+");"
-        print queryStr
+        print (queryStr)
         try:
                 connection.query(queryStr)
-                print "%s created successfully\n" % tbName
+                print ("%s created successfully\n" % tbName)
                 return 1 #success
         except:
-                print "%s already exist\n" % tbName
+                print ("%s already exist\n" % tbName)
                 
         
 
@@ -227,7 +227,7 @@ def createTable(tbName, fields):
 def insert(tbName, attrs, values, flag = 0):
         for i in values:
                 if flag:
-                        print i
+                        print (i)
                 queryStr = "INSERT INTO %s (%s) VALUES (" % (tbName, attrs)
                 
                 for j in i:
@@ -235,7 +235,7 @@ def insert(tbName, attrs, values, flag = 0):
                 queryStr = queryStr[:-1]+");";
 
                 if flag:
-                        print " ",queryStr
+                        print (" ",queryStr)
                 connection.query(queryStr);
                                 
         return 1 #success

@@ -35,7 +35,7 @@ class blast_util:
 		
 		# read clades into dict: 
 		# idx as key, a nested list with [[hs1...][mm1..]] as value
-		print "Read clade info..."
+		print ("Read clade info...")
 		inp = open(clades,"r")
 		inl = inp.readline()
 		idx = 0
@@ -47,14 +47,14 @@ class blast_util:
 			idx += 1	
 			inl = inp.readline()
 		
-		print "Read fasta file..."
+		print ("Read fasta file...")
 		fasta = fm.fasta_to_dict(fasta)
 		fasta2= fm.fasta_to_dict(fasta2)
 		
-		print "Iterate through %i clades:" % len(cdict.keys())
+		print ("Iterate through %i clades:" % len(cdict.keys()))
 		oup_verify = open(clades+".verify","w")
 		for i in cdict:
-			print "",i
+			print ("",i)
 			# construct TMP.fa and run blast
 			oup = open("TMP.fa","w")
 			# output hs sequences
@@ -118,7 +118,7 @@ class blast_util:
 						if Xlow[2] >= mdict["%s %s" % (k,j)]:
 							Xlow = [k,j,mdict["%s %s" % (k,j)]]
 					else:
-						print "X Score not found:",j,k
+						print ("X Score not found:",j,k)
 			# get Xout
 			Xout = ["-","-",0]
 			for j in (cdict[i][0]+cdict[i][1]):
@@ -130,7 +130,7 @@ class blast_util:
 						if Xout[2] < mdict["%s %s" % (k,j)]:
 							Xout = [k,j,mdict["%s %s" % (k,j)]]
 					else:
-						print "Out score not found:",j,k
+						print ("Out score not found:",j,k)
 
 			cpass = cfail = 0
 			oup_verify.write("%s\t%s\t%s-%s\t%f\t%s-%s\t%f\n" % \
@@ -141,7 +141,7 @@ class blast_util:
 				break
 			os.system("rm TMP*")
 			
-		print "Done!"
+		print ("Done!")
 
 	#
 	# Take a fasta file, divide it, then call qsub2 to submit jobs
@@ -162,20 +162,20 @@ class blast_util:
 		if db == "":
 			db = fasta
 		
-		print "Make database..."
+		print ("Make database...")
 		if os.path.isfile("%s.nin" % db):
-			print " already there..." 
+			print (" already there..." )
 		elif stype == "pep":
 			os.system("%s/formatdb -i %s" % (bdir,db))
 		elif stype == "nt":
 			os.system("%s/formatdb -i %s -p F" % (bdir,db))
 		else:
-			print "Unknown seq type %s, QUIT!" % stype 
+			print ("Unknown seq type %s, QUIT!" % stype )
 		
-		print "Divide fasta file..."
+		print ("Divide fasta file...")
 		fm.divide(fasta,by)
 		
-		print "Sumbit jobs..."
+		print ("Sumbit jobs...")
 		for i in range(1,by+1):
 			os.system("python %s/qsub.py -f qsub1 -J batch_blast" % pdir+\
 					  		" -c '%s/%s %s -i %s_%i -o %i.out -d %s'"  % \
@@ -199,18 +199,18 @@ class blast_util:
 		os.system("mkdir _blast")
 		os.system("mkdir _csbm")
 		
-		print "Process fasta file:"
+		print ("Process fasta file:")
 		dlist = os.listdir(wdir)
 		countF = 1
 		for i in dlist:
 			if i[-3:] == ".fa":
-				print countF,i 
+				print (countF,i )
 				countF += 1
 				if os.path.isfile("_blast/%s.out" % i):
 					if os.path.getsize("_blast/%s.out" % i) != 0:
-						print " blast output exists..."
+						print (" blast output exists...")
 					else:
-						print " blast output size is 0"
+						print (" blast output size is 0")
 						os.system("rm %s.out" % i)						
 				else:
 					self.formatdb(bdir,"%s/%s" % (wdir,i),"T")
@@ -220,7 +220,7 @@ class blast_util:
 					if os.path.getsize("%s.out" % i) != 0:
 						os.system("mv %s.out _blast" % i)
 					else:
-						print "  blast output size is 0"
+						print ("  blast output size is 0")
 						os.system("rm %s.out" % i)
 					## remove blast db
 					os.system("rm %s.p*" % i)
@@ -228,22 +228,22 @@ class blast_util:
 				## Call best match
 				if os.path.isfile("_csbm/%s.out.cluster" % i):
 					if os.path.getsize("_csbm/%s.out.cluster" % i) != 0:
-						print " best match done"
+						print (" best match done")
 					else:
-						print " best_match out size is 0"
+						print (" best_match out size is 0")
 						os.system("rm %s.out" % i)						
 				else:					
-					print "python %s/best_match.py " % pdir+\
-							"_blast/%s.out %s %s"  % (i,sp1,sp2)
+					print ("python %s/best_match.py " % pdir+\
+							"_blast/%s.out %s %s"  % (i,sp1,sp2))
 					os.system("python %s/best_match.py " % pdir+\
 							  "_blast/%s.out %s %s"  % (i,sp1,sp2))
 					if os.path.getsize("_blast/%s.out.cluster" % i) != 0:
 						os.system("mv _blast/%s.out.* _csbm"   % i)
 					else:
-						print "  best_match out size is 0"
+						print ("  best_match out size is 0")
 						os.system("rm _blast/%s.out.cluster" % i)						
 					
-		print "Done!"			
+		print ("Done!"	)		
 	
 	#
 	# Take a fasta file, divide it, then generate a cmd file for qsub script.
@@ -263,7 +263,7 @@ class blast_util:
 				creatdb,outname):
 		
 		# NOTE!
-		print "NOTE: assume qsub location"
+		print ("NOTE: assume qsub location")
 		
 		if pm == "":
 			pm = "-p blastp -d %s -m 8 -e 1 -F F -v 0 -b 2000" % fasta
@@ -274,7 +274,7 @@ class blast_util:
 		# Get current working dir if not specified
 		else:
 			fdir = os.getcwd()+"/"
-			print "NOTE: assume working dir:",fdir
+			print ("NOTE: assume working dir:",fdir)
 				
 		if db == "":
 			db = fasta
@@ -282,24 +282,24 @@ class blast_util:
 		if outname == "":
 			outname = fasta
 		
-		print "Make database..."
+		print ("Make database...")
 		if createdb == 0:
-			print " createdb=0, no db created..."
+			print (" createdb=0, no db created...")
 		elif stype == "pep":
 			os.system("%s/formatdb -i %s" % (bdir,db))
 		elif stype == "nt":
 			os.system("%s/formatdb -i %s -p F" % (bdir,db))
 		else:
-			print "Unknown seq type %s, QUIT!" % stype 
+			print ("Unknown seq type %s, QUIT!" % stype) 
 		
-		print "Divide fasta file..."
+		print ("Divide fasta file...")
 		if splitfa == 0:
-			print " splitfa=0, won't divide fasta"
+			print (" splitfa=0, won't divide fasta")
 		else:
 			fm.divide(fasta,by,0,1)
 		
 		
-		print "Output command lines..."
+		print ("Output command lines...")
 		oup = open("cmd_%s" % outname, "w")
 		for i in range(1,by+1):
 			oup.write("%s/%s %s -i %s%s_%i -o %sout.%s_%i -d %s%s\n" % \
@@ -308,7 +308,7 @@ class blast_util:
 
 
 	def formatdb(self,d,fasta,p):
-		print "   formatdb..."
+		print ("   formatdb...")
 		os.system("%s/formatdb -i %s -p %s" % (d,fasta,p))
 	
 	##
@@ -322,7 +322,7 @@ class blast_util:
 	# @param F         filter  
 	##	
 	def blast(self,p,fasta,d,o,m,bdir,e,F,v,b):
-		print "   blast..."
+		print ("   blast...")
 		os.system("%s/blastall -p %s -i %s -d %s -m %i -F %s -e %s -o %s -v %i -b %i" % \
 			   	  (bdir,p,fasta,d,m,F,e,o,v,b))
 
@@ -348,7 +348,7 @@ class blast_util:
 		bdict = fu.file_to_dict(block,3)
 		
 		# get the coords
-		print "Read block coords..."
+		print ("Read block coords...")
 		gdict = {}
 		for i in bdict:
 			for j in bdict[i]:
@@ -382,7 +382,7 @@ class blast_util:
 			if cdict.has_key(L[0]):
 				# already has this L, skip
 				if cdict[L[0]].has_key(int(L[-2])):
-					print " same coord for two entries -",L[-2]
+					print (" same coord for two entries -",L[-2])
 				else:
 					# the next gene has the same L, get the L and R for the next
 					if int(L[-2]) == int(L2[-2]):
@@ -399,12 +399,12 @@ class blast_util:
 			inl = inl2
 		
 		# iterate through blocks
-		print "Iterating blocks.."
+		print ("Iterating blocks..")
 		for i in bdict:
-			print "",i
+			print ("",i)
 			
 			if os.path.isfile("%s.out" % i):
-				print "  blast done..."
+				print ("  blast done...")
 				continue
 				
 			b1L   = gdict[bdict[i][0]][1]-FLANK
@@ -421,7 +421,7 @@ class blast_util:
 			os.system("mv %s.fa.seg.fa TMP2.fa" % i[1])
 			
 			# generate database
-			print "Generate database..."
+			print ("Generate database...")
 			os.system("%s/formatdb -i TMP2.fa -n TMP -p F" % bdir)
 			
 			# run blast
@@ -482,7 +482,7 @@ class blast_util:
 			oup_1.close()
 			oup_2.close()
 			
-		print "Done!!"
+		print ("Done!!")
 		
 	##
 	# @param p         blast program
@@ -514,7 +514,7 @@ class blast_util:
 			while check_again:
 				#print check_again,o
 				[check_again,o,c] = check("%s.%i" % (o,c),o,c)
-		print " output name:",o
+		print (" output name:",o)
 		
 		# set megablast
 		if n == 1:
@@ -528,15 +528,15 @@ class blast_util:
 			F = "F"
 		
 	
-		print "Read seq into dict..."
+		print ("Read seq into dict...")
 		seq_dict = fm.fasta_to_dict(fasta,0,1)
-		print seq_dict.keys()
+		print (seq_dict.keys())
 		idx      = seq_dict.keys()[0]
 		seq      = seq_dict.values()[0]
-		print " seq    =",idx
-		print " length =",len(seq)
+		print (" seq    =",idx)
+		print (" length =",len(seq))
 				
-		print "Start blast..."
+		print ("Start blast...")
 		c = 0
 		while c < len(seq):
 			#print " %i-%i" % (c+1,c+w)
@@ -556,7 +556,7 @@ class blast_util:
 			
 			os.system("rm %s" % (sname+".fa"))
 			
-		print "Done!"
+		print ("Done!")
 
 	
 	def bl2seq(self,program,fasta,s1,s2,stdout=1):
@@ -564,13 +564,13 @@ class blast_util:
 		fasta = fm.fasta_to_dict(fasta)
 		missed = 0
 		if not fasta.has_key(s1):
-			print "Not found:", s1
+			print ("Not found:", s1)
 			missed = 1
 		if not fasta.has_key(s2):
-			print "Not found:", s2
+			print ("Not found:", s2)
 			missed = 1
 		if missed:
-			print "Quit!"
+			print ("Quit!")
 			sys.exit(0)
 			
 		# generate temp fasta files
@@ -617,18 +617,18 @@ class blast_util:
 		if ev == "1":
 			ev = float(ev)
 		
-		print "Program  :",program
-		print "Pair list:",pairs
-		print "Fasta1   :",fasta1
-		print "Fasta2   :",fasta2
-		print "Blast dir:",bdir
-		print "Keep outp:",outflag
-		print "Working d:",wdir
+		print ("Program  :",program)
+		print ("Pair list:",pairs)
+		print ("Fasta1   :",fasta1)
+		print ("Fasta2   :",fasta2)
+		print ("Blast dir:",bdir)
+		print ("Keep outp:",outflag)
+		print ("Working d:",wdir)
 		
 		# read gene pairs
-		print "Read gene pairs..."
+		print ("Read gene pairs...")
 		gpairs = fu.file_to_list(pairs,1,"\t")
-		print " %i pairs" % len(gpairs)
+		print (" %i pairs" % len(gpairs))
 		
 		# see if the list need to be inverted or not
 		tlist = []
@@ -637,7 +637,7 @@ class blast_util:
 		gpairs = tlist
 			
 		# read fasta into dict
-		print "Read fasta files..."
+		print ("Read fasta files...")
 		fd1 = fm.fasta_to_dict(fasta1)
 		
 		has2 = 0
@@ -651,14 +651,14 @@ class blast_util:
 			oup2.close()
 		
 		# reiterate the list and conduct bl2seq
-		print "Do bl2seq..."
+		print ("Do bl2seq...")
 		oup = open("%s.bl2seq.out" % pairs,"w")
 		oupL= open("%s.log"        % pairs,"w")
 		oupL.write("id1\tid2\tmaxL_%ID\tmaxL_alnL\tmaxP_%ID\tmaxP_alnL\n")
 		c = 0
 		for i in gpairs:
 			if c%1e2 == 0:
-				print " %i x 100" % (c/100)
+				print (" %i x 100" % (c/100))
 			c += 1
 			#print i
 			
@@ -669,9 +669,9 @@ class blast_util:
 					seq2 = fd2[i[1]]
 				except KeyError:
 					if not fd1.has_key(i[0]):
-						print " %s not in fasta file" % i[0]
+						print (" %s not in fasta file" % i[0])
 					if not fd2.has_key(i[1]):
-						print " %s not in fasta file" % i[1]
+						print (" %s not in fasta file" % i[1])
 					missed = 1					
 			else:
 				try:
@@ -679,9 +679,9 @@ class blast_util:
 					seq2 = fd1[i[1]]
 				except KeyError:
 					if not fd1.has_key(i[0]):
-						print " %s not in fasta file" % i[0]
+						print (" %s not in fasta file" % i[0])
 					if not fd1.has_key(i[1]):
-						print " %s not in fasta file" % i[1]
+						print (" %s not in fasta file" % i[1])
 					missed = 1		
 			
 			if missed == 1:
@@ -740,12 +740,12 @@ class blast_util:
 				# if blast output do not have any alignment, the pb.parse_algn2
 				# will not work because it try to parse the alignment. This
 				# happens if the sequence length is too short.
-				print " no_blast_out:",i
+				print (" no_blast_out:",i)
 							
 			os.system("rm %sTMP*" % wdir)
 		
 		os.system("rm -rf tmp_%f/" % t)
-		print "Done!"
+		print ("Done!")
 	
 	#
 	# This is written for Smith-Waterman alignments between a protein seq and
@@ -763,22 +763,22 @@ class blast_util:
 		flags   = "-A -m 3 -q"
 		ev      = float(ev)
 
-		print "Program  :",program
-		print "Pair list:",pairs
-		print "Fasta1   :",fasta1
-		print "Fasta2   :",fasta2
-		print "Fasta dir:",bdir
-		print "Working d:",wdir
-		print "Flags    :",flags
-		print "E thres  :",ev
+		print ("Program  :",program)
+		print ("Pair list:",pairs)
+		print ("Fasta1   :",fasta1)
+		print ("Fasta2   :",fasta2)
+		print ("Fasta dir:",bdir)
+		print ("Working d:",wdir)
+		print ("Flags    :",flags)
+		print ("E thres  :",ev)
 
 		# read gene pairs
-		print "Read gene pairs..."
+		print ("Read gene pairs...")
 		gpairs = fu.file_to_list(pairs,1,"\t")
-		print " %i pairs" % len(gpairs)
+		print (" %i pairs" % len(gpairs))
 			
 		# read fasta into dict
-		print "Read fasta files..."
+		print ("Read fasta files...")
 		fd1 = fm.fasta_to_dict(fasta1)
 		if fasta2 != "":
 			fd2 = fm.fasta_to_dict(fasta2)
@@ -792,7 +792,7 @@ class blast_util:
 			oup2.close()
 		
 		# reiterate the list and conduct sw alignment
-		print "Do sw..."
+		print ("Do sw...")
 		oup = open("%s.sw.out" % pairs,"w")
 		oup3= open("%s.sw.err" % pairs,"w")
 		c = 0
@@ -802,12 +802,12 @@ class blast_util:
 				i = i[:2]
 			
 			if c%1e2 == 0:
-				print " %i x 100" % (c/100)
+				print (" %i x 100" % (c/100))
 			c += 1
 			
 			missed = 0
 			if not fd1.has_key(i[0]) or not fd1.has_key(i[1]):			
-				print " %s not in fasta file" % i
+				print (" %s not in fasta file" % i)
 				oup.write("%s\t%s\n" % (i[0],i[1]))
 				continue
 		
@@ -833,7 +833,7 @@ class blast_util:
 			# check if there is smith-waterman score, if not, there is no
 			# alignment and this sequence will be skipped.
 			if results[4] == []:
-				print " no alignment:",i
+				print (" no alignment:",i)
 			
 			else:
 				oup.write("#%s %s\n" % (i[0],i[1]))
@@ -848,7 +848,7 @@ class blast_util:
 						try:
 							tmp.append(results[k][j])
 						except IndexError:
-							print "problem:",i
+							print ("problem:",i)
 							oup3.write("%s\t%s\n" % (i[0],i[1]))
 							err = 1
 							break
@@ -865,7 +865,7 @@ class blast_util:
 			os.system("rm %sTMP*" % wdir)
 		
 		os.system("rmdir %s" % wdir)
-		print "Done!"
+		print ("Done!")
 		
 	#
 	# Parse Fasta tfasty format 3 output
@@ -966,9 +966,9 @@ class blast_util:
 		if call:
 			return info
 		else:
-			print "\nParsed:"
+			print ("\nParsed:")
 			for i in info:
-				print i
+				print (i)
 		
 	
 	#
@@ -1010,72 +1010,72 @@ class blast_util:
 
 	
 	def help(self):
-		print " -f function"	
-		print "     batch_bw - batch operation of blast_window. REQUIRES: b,"
-		print "        dat. OPTIONAL: bdir,w,s,e,n"
-		print "     batch_blast - require dir with sequence file, REQUIRES: D,"
-		print "        s1, s2, OPTIONAL: bdir,pdir"
-		print "     batch_blast2 - divide a fasta and run multiple blast. NEED:"
-		print "        fasta, OPT: bdir, by, pm, stype, btype,db, pdir"
-		print "     batch_bl2 - batch blast a list of pairs. REQUIRES: p,g,i"
-		print "        OPTIONAL: j,bdir,d,wdir,W,top,e"
-		print "     batch_blast_cmd - divide a fasta and generate a cmd list." 
-		print "        NEED:fasta, OPT: bdir, by, pm, stype, btype,db, fdir"
-		print "        splitfa, createdb, outname"
-		print "     batch_sw - do batch tfasty with smith-waterman algorithm"
-		print "        NEED: p,g,i, OPT: j, bdir, d, e"
-		print "     bl2seq - take two sequences from a fasta file and do bl2seq"
-		print "        REQUIRES: p,fasta,s1,s2"
-		print "     blast_window - blast windows of a given sequence. REQUIRES:"
-		print "        p,i,d. OPTIONAL: o,m,bdir,w,s,e,n"
-		print "     parse_tfasty - NEED: infile"
-		print "     verify_clade - a special function for blasting each"
-		print "        ancestral units defined against database made of seq"
-		print "        from outgroup organsisms and verify if within clade"
-		print "        matches are better than to outgroups. REQUIRES:bdir"
-		print "        i,j,c,d"
-		print "     verify_match - NEED: gap,g,c"
-		print " -p  blast program name"
-		print " -createdb 1 (yes, default), 0 (no)"
-		print " -g  pair list. For verify_match, check the code doc."
-		print " -i  first fasta file, should be the index 0 of the pairs." 
-		print "     For batch_bl2 this file can have all sequences if the run" 
-		print "        is not about getting protein sequences out of nt"
-		print " -j  second fasta file, should be the index 1 of the pairs"
-		print " -r  which of each pair to use as query, 0 (default) or 1" 
-		print " -fasta  query seq file"
-		print " -d  subject database, for batch_bl2, this is the flag for"
-		print "     keeping the bl2seq or tfasty output (1) or not (0, default)"
-		print " -m  ouput format, default 8"
-		print " -bdir  blast folder directory, default /usr/bin/blast"
-		print " -pdir  python code dir, default ~/codes/"
-		print " -fdir  fasta file folder where database and outputs will be."
-		print " -w  window size, default 1000"
-		print " -W  word size, default 3"
-		print " -by divide fasta file by, default 1"
-		print " -pm parameter, default: '-p blastp -m 8 -e 1 -F F -v 0 -b 2000"
-		print " -outname output postfix for batch_blast_cmd"
-		print " -s  step size, default 1000"
-		print " -splitfa 1 (divide fasta, default), 0 (no)"
-		print " -stype database sequence type, pep (default) or nt"
-		print " -btype blast type, default blastall."
-		print " -db database or fasta for database. If not passed, assume it is"
-		print "     a self blast search"
-		print " -e  evalue cutoff, default 1"
-		print " -n  mega blast, default 1 (which is true)"
-		print " -F  low-complexity filter, default 0 (false)"
-		print " -s1 sequence name 1, or species abbr 1 for batch_blast"
-		print " -s2 sequence name 2, or species abbr 2"
-		print " -b  block infor with [gene][ori][L][R][block_id]"
-		print " -dat dat file generated by DatParser.parse_coord"
-		print " -c  clade file with [o1g1,o1g2....][o2g1,o2g2...]. For"
-		print "        verify_match, this is the coord file"
-		print " -D  directory with sequence files"
-		print " -gap Gap file generated by ParseBlast.parse_gap"
-		print " -wdir working dir, default ./"
-		print " -infile tfasty output"
-		print " -top return top match only, default 1 (true)"
-		print ""
+		print (" -f function")	
+		print ("     batch_bw - batch operation of blast_window. REQUIRES: b,")
+		print ("        dat. OPTIONAL: bdir,w,s,e,n")
+		print ("     batch_blast - require dir with sequence file, REQUIRES: D,")
+		print ("        s1, s2, OPTIONAL: bdir,pdir")
+		print ("     batch_blast2 - divide a fasta and run multiple blast. NEED:")
+		print ("        fasta, OPT: bdir, by, pm, stype, btype,db, pdir")
+		print ("     batch_bl2 - batch blast a list of pairs. REQUIRES: p,g,i")
+		print ("        OPTIONAL: j,bdir,d,wdir,W,top,e")
+		print ("     batch_blast_cmd - divide a fasta and generate a cmd list.") 
+		print ("        NEED:fasta, OPT: bdir, by, pm, stype, btype,db, fdir")
+		print ("        splitfa, createdb, outname")
+		print ("     batch_sw - do batch tfasty with smith-waterman algorithm")
+		print ("        NEED: p,g,i, OPT: j, bdir, d, e")
+		print ("     bl2seq - take two sequences from a fasta file and do bl2seq")
+		print ("        REQUIRES: p,fasta,s1,s2")
+		print ("     blast_window - blast windows of a given sequence. REQUIRES:")
+		print ("        p,i,d. OPTIONAL: o,m,bdir,w,s,e,n")
+		print ("     parse_tfasty - NEED: infile")
+		print ("     verify_clade - a special function for blasting each")
+		print ("        ancestral units defined against database made of seq")
+		print ("        from outgroup organsisms and verify if within clade")
+		print ("        matches are better than to outgroups. REQUIRES:bdir")
+		print ("        i,j,c,d")
+		print ("     verify_match - NEED: gap,g,c")
+		print (" -p  blast program name")
+		print (" -createdb 1 (yes, default), 0 (no)")
+		print (" -g  pair list. For verify_match, check the code doc.")
+		print (" -i  first fasta file, should be the index 0 of the pairs." )
+		print ("     For batch_bl2 this file can have all sequences if the run" )
+		print ("        is not about getting protein sequences out of nt")
+		print (" -j  second fasta file, should be the index 1 of the pairs")
+		print (" -r  which of each pair to use as query, 0 (default) or 1" )
+		print (" -fasta  query seq file")
+		print (" -d  subject database, for batch_bl2, this is the flag for")
+		print ("     keeping the bl2seq or tfasty output (1) or not (0, default)")
+		print (" -m  ouput format, default 8")
+		print (" -bdir  blast folder directory, default /usr/bin/blast")
+		print (" -pdir  python code dir, default ~/codes/")
+		print (" -fdir  fasta file folder where database and outputs will be.")
+		print (" -w  window size, default 1000")
+		print (" -W  word size, default 3")
+		print (" -by divide fasta file by, default 1")
+		print (" -pm parameter, default: '-p blastp -m 8 -e 1 -F F -v 0 -b 2000")
+		print (" -outname output postfix for batch_blast_cmd")
+		print (" -s  step size, default 1000")
+		print (" -splitfa 1 (divide fasta, default), 0 (no)")
+		print (" -stype database sequence type, pep (default) or nt")
+		print (" -btype blast type, default blastall.")
+		print (" -db database or fasta for database. If not passed, assume it is")
+		print ("     a self blast search")
+		print (" -e  evalue cutoff, default 1")
+		print (" -n  mega blast, default 1 (which is true)")
+		print (" -F  low-complexity filter, default 0 (false)")
+		print (" -s1 sequence name 1, or species abbr 1 for batch_blast")
+		print (" -s2 sequence name 2, or species abbr 2")
+		print (" -b  block infor with [gene][ori][L][R][block_id]")
+		print (" -dat dat file generated by DatParser.parse_coord")
+		print (" -c  clade file with [o1g1,o1g2....][o2g1,o2g2...]. For")
+		print ("        verify_match, this is the coord file")
+		print (" -D  directory with sequence files")
+		print (" -gap Gap file generated by ParseBlast.parse_gap")
+		print (" -wdir working dir, default ./")
+		print (" -infile tfasty output")
+		print (" -top return top match only, default 1 (true)")
+		print ("")
 		sys.exit(0)
 
 
@@ -1182,66 +1182,66 @@ if __name__ == '__main__':
 		elif sys.argv[i] == "-outname":
 			outname    = sys.argv[i+1]
 		else:
-			print "Unknown flag:",sys.argv[i]
+			print ("Unknown flag:",sys.argv[i])
 			util.help()
 			
 	if f == "blast_window":
 		if p == "" or fasta1 == "" or d == "":
-			print "\nNeed blast program name, input sequence file, and database\n"
+			print ("\nNeed blast program name, input sequence file, and database\n")
 			util.help()
 		util.blast_window(p,fasta1,d,o,m,bdir,w,s,e,n,F)
 	elif f == "batch_bw":
 		if b == "" or dat == "":
-			print "\nNeed block, dat files\n"
+			print ("\nNeed block, dat files\n")
 			util.help()
 		util.batch_bw(b,dat,bdir,w,s,e,n,F)
 	elif f == "batch_bl2":
 		if "" in [p,g,fasta]:
-			print "\nRequires program, gene pairs, fasta"
+			print ("\nRequires program, gene pairs, fasta")
 			util.help()
 		util.batch_bl2(p,g,fasta,fasta2,bdir,d,wdir,W,top,e)
 	elif f == "batch_sw":
 		if "" in [p,g,fasta]:
-			print "\nRequires program, gene pairs, fasta"
+			print ("\nRequires program, gene pairs, fasta")
 			util.help()
 		util.batch_sw(p,g,fasta,fasta2,bdir,d,wdir,e)
 	elif f == "bl2seq":
 		if "" in [p,fasta,s1,s2]:
-			print "\nRequires program, fasta, ane two sequence names"
+			print ("\nRequires program, fasta, ane two sequence names")
 			util.help()
 		util.bl2seq(p,fasta,s1,s2)
 	elif f == "verify_clade":
 		if "" in [bdir,fasta1,fasta2,d,c]:
-			print "\nRequires bdir, 2 fasta, clades, and database name"
+			print ("\nRequires bdir, 2 fasta, clades, and database name")
 			util.help()
 		util.verify_clade(bdir,fasta1,fasta2,d,c,DEBUG)		
 	elif f == "batch_blast":
 		if "" in [D,s1,s2]:
-			print "\nRequires sequence dir and species abbrv."
+			print ("\nRequires sequence dir and species abbrv.")
 			util.help()
 		util.batch_blast(bdir,D,pdir,s1,s2)	
 	elif f == "batch_blast2":
 		if "" in [fasta]:
-			print "\nRequires fasta file"
+			print ("\nRequires fasta file")
 			util.help()
 		util.batch_blast2(fasta,bdir,by,pm,stype,btype,db,pdir)	
 	elif f == "batch_blast_cmd":
 		if "" in [fasta]:
-			print "\nRequires fasta file"
+			print ("\nRequires fasta file")
 			util.help()
 		util.batch_blast_cmd(fasta,bdir,by,pm,stype,btype,db,fdir,splitfa,
 							createdb,outname)	
 	elif f == "verify_match":
 		if "" in [gap,g,c]:
-			print "\nRequires gap, pair, and coord files"
+			print ("\nRequires gap, pair, and coord files")
 			util.help()
 		util.verify_match(gap,g,c)
 	elif f == "parse_tfasty":
 		if infile == "":
-			print "\nNeed tfasty output"
+			print ("\nNeed tfasty output")
 		util.parse_tfasty(infile)
 	else:
-		print "\nUnknown function...\n"
+		print ("\nUnknown function...\n")
 		util.help()
 	
 	

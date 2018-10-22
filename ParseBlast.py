@@ -88,7 +88,7 @@ import sys, math, SingleLinkage, FastaManager, FileUtility, string, os
 try:
 	import DatabaseOp
 except ImportError:
-	print "\nNOTE: DatabaseOp not imported"
+	print ("\nNOTE: DatabaseOp not imported")
 
 
 class parser:
@@ -103,16 +103,16 @@ class parser:
 		if bdir[-1] != "/":
 			bdir += "/"
 		
-		print "1. blast..."
+		print ("1. blast...")
 		#os.system("%sformatdb -i %s" % (bdir,fasta))
 		#os.system("%sblastall -p blastp -d %s -i %s " % (bdir,fasta,fasta) + \
 		#	 	  "-o %s.out -F F -v 0 -b 5000 -m 8"  % fasta)
-		print "2. deal with blast score..."
+		print ("2. deal with blast score...")
 		self.parse_table("%s.out" % fasta,"evalue",T=1,wself=1) 	  
 		self.symmetrify("%s.out_T1_evalue.parse"    % fasta)
 		self.mega_score("%s.out_T1_evalue_c0h0.sym" % fasta)
 		
-		print "Done!"
+		print ("Done!")
 
 
 	##
@@ -135,7 +135,7 @@ class parser:
 		# first get top matches, subj as key, [query,pid,evalue] as value
 		# if unknown is set at 0. Other wise, query as key.
 		sdict = {}
-		print "Get top matches..."
+		print ("Get top matches...")
 		while inl != "":
 			llist  = inl.split("\t")
 			query  = llist[0]
@@ -157,7 +157,7 @@ class parser:
 			inl = inp.readline()
 		
 		# check query group and output subj, query, percentID, evalue
-		print "Match targets and generate output..."
+		print ("Match targets and generate output...")
 		oup = open(blast+"."+target,"w")
 		for i in sdict.keys():
 			#try:
@@ -169,7 +169,7 @@ class parser:
 			#	print "QUIT!!"
 			#	sys.exit(0)
 		
-		print "Done!"
+		print ("Done!")
 
 	##
 	# Format e values for Super-Paramagnetic Clustering (SPC). The input file has
@@ -206,7 +206,7 @@ class parser:
 	##      
 	def get_scores_for_spc(self,score_file,outbase,per_id=10,homogenize=0):
 
-		print "\nGenerate score file for Non-parametric clustering:"
+		print ("\nGenerate score file for Non-parametric clustering:")
 
 		##
 		# Set default values
@@ -226,7 +226,7 @@ class parser:
 		oup3.write(" homogenize= %i\n\n" % homogenize)
 
 
-		print "Convert e value, apply threshold...\n"
+		print ("Convert e value, apply threshold...\n")
 		# convert e value into -log10(e)
 		inp = open(score_file,"r")
 
@@ -256,7 +256,7 @@ class parser:
 				try:
 					score = -math.log10(float("1"+score))
 				except OverflowError:
-					print "OVERFLOW:",idx1,idx2,score
+					print ("OVERFLOW:",idx1,idx2,score)
 					inline = inp.readline()
 					continue
 			elif score  == "0.0": 
@@ -265,11 +265,11 @@ class parser:
 				try:
 					score = -math.log10(float(score))
 				except OverflowError:
-					print "OVERFLOW:",idx1,idx2,score
+					print ("OVERFLOW:",idx1,idx2,score)
 					inline = inp.readline()
 					continue
 				except ValueError:
-					print "ValueError:",idx1,idx2,score
+					print ("ValueError:",idx1,idx2,score)
 					inline = inp.readline()
 					continue
 
@@ -286,7 +286,7 @@ class parser:
 					
 			inline = inp.readline()
 
-		print "Symmetrify and normalize scores...\n"
+		print ("Symmetrify and normalize scores...\n")
 		# symmetrify and normalize score with self score and len of longer entry
 		# notice that tscore has different format from that of score_dict
 		tscores = {}
@@ -327,7 +327,7 @@ class parser:
 				del score_dict[idx2+"_"+idx1]
 			
 			if score > 1:
-				print "Score bigger than 1:",idx1,idx2,score
+				print ("Score bigger than 1:",idx1,idx2,score)
 				score = 1
 
 			# construct transformed score dict
@@ -351,7 +351,7 @@ class parser:
 		# scores will not be included, which is always 1.
 		if per_id != 0:
 
-			print "Get top %i scores...\n" % per_id
+			print ("Get top %i scores...\n" % per_id)
 			for i in tscores.keys():    # match for each index
 				#print i
 				
@@ -393,7 +393,7 @@ class parser:
 
 
 			# check reciprocity, build index dict, and generate output
-			print "Check reciprocity, generate output...\n"
+			print ("Check reciprocity, generate output...\n")
 			idx_dict   = {}
 			count = 0
 			
@@ -447,7 +447,7 @@ class parser:
 					count = count+1
 			oup3.write("Total = %i" % count)
 			
-			print "Done!\n"
+			print ("Done!\n")
 			sys.exit(0)
 		
 
@@ -476,18 +476,18 @@ class parser:
 		c = 0
 		o_scores = {}
 
-		print "Construct idx and score dict..."
+		print ("Construct idx and score dict...")
 		inline = inp.readline()
 		countS = 0
 		while inline != "":
 			if countS % 100000 == 0:
-				print " %i x 100k" % (countS/100000)
+				print (" %i x 100k" % (countS/100000))
 			countS += 1
 			lnlist = inline.split("\t")
 			# check number of column
 			if len(lnlist) != 3:
-				print "Score format problem: should be [query][subj][-log(e)]"
-				print "Quit!"
+				print ("Score format problem: should be [query][subj][-log(e)]")
+				print ("Quit!")
 				sys.exit(0)
 			
 			if not idx.has_key(lnlist[0]):
@@ -526,11 +526,11 @@ class parser:
 		# symmetrify scores
 		s_scores = {}
 		okeys = o_scores.keys()
-		print "Symmetrify scores..."
+		print ("Symmetrify scores...")
 		countS = 0
 		for i in okeys:
 			if countS % 1e4 == 0:
-				print " %i x 10k" % (countS/1e4)
+				print (" %i x 10k" % (countS/1e4))
 			countS+= 1
 			oikeys = o_scores[i].keys()
 			for j in oikeys:
@@ -577,7 +577,7 @@ class parser:
 		#	print i
 		#	print s_scores[i]
 		# write mcl file
-		print "Generate output file..."
+		print ("Generate output file...")
 		oup = open(outbase+".mci","w")
 		oup.write("(mclheader\nmcltype matrix\ndimensions %ix%i\n)\n" % (D,D))
 		oup.write("(mclmatrix\nbegin\n")
@@ -602,9 +602,9 @@ class parser:
 
 		oup.write(")")
 		
-		print "Close outputstream..."
+		print ("Close outputstream...")
 		oup.close()
-		print "Done!"
+		print ("Done!")
 				  
 
 	##
@@ -624,18 +624,18 @@ class parser:
 		
 		oup_log = open(score_file+"_sym.log","w")
 		
-		print "Construct score dict..."
+		print ("Construct score dict...")
 		o_scores = {}
 		inp = open(score_file,"r")
 		inline = inp.readline()
 
 		c = 0
 		ndict = {}
-		print "Processed lines:"
+		print ("Processed lines:")
 		oup_log.write("More than one scores:\n")
 		while inline != "":
 			if c % 100000 == 0:
-				print " %ix100k" % (c/100000)
+				print (" %ix100k" % (c/100000))
 			c += 1
 				
 			# [seq1][seq2][E][-log(E)] or [seq1][seq2][-][percentID or SIM]
@@ -667,7 +667,7 @@ class parser:
 					o_scores[lnlist[0]][lnlist[1]] = float(lnlist[-1])
 			inline = inp.readline()
 		
-		print "Apply cutoff..."
+		print ("Apply cutoff...")
 		okeys = o_scores.keys()
 		selfC = 0
 		oup_log.write("\nSelf score below cutoff at %i:\n" % cutoff)
@@ -681,16 +681,16 @@ class parser:
 						selfC += 1
 					o_scores[i][j] = cutoff
 
-		print " %i self score below cutoff %i" % (selfC,cutoff)
+		print (" %i self score below cutoff %i" % (selfC,cutoff))
 		
-		print "Symmetrify and normalize scores..."
+		print ("Symmetrify and normalize scores...")
 		s_scores = {}
-		print "Process total %i taxa:" % len(okeys)
+		print ("Process total %i taxa:" % len(okeys))
 		c = 0
 		oup_log.write("\nNot in score dict, most likely not in BLAST file:\n")
 		for i in okeys:		 
 			if c % 10 == 0:
-				print "",c+1
+				print ("",c+1)
 			c += 1
 			oikeys = o_scores[i].keys()
 			for j in oikeys:
@@ -712,11 +712,11 @@ class parser:
 					if o_scores[i].has_key(i):
 						pass
 					else:
-						print "Self score missing:",i
-						print "Did you parse the table -wself 1? QUIT!"
+						print ("Self score missing:",i)
+						print ("Did you parse the table -wself 1? QUIT!")
 						sys.exit(0)
 				else:
-					print " score dict misses:",i
+					print (" score dict misses:",i)
 					oup_log.write(" %i" % i)
 					o_scores[i] = {i:cutoff}
 					#print "Quit!"
@@ -726,11 +726,11 @@ class parser:
 					if o_scores[i].has_key(j):
 						pass
 					else:
-						print "Self score missing:",j
-						print "Did you parse the table -wself 1? QUIT!"
+						print ("Self score missing:",j)
+						print ("Did you parse the table -wself 1? QUIT!")
 						sys.exit(0)
 				else:
-					print " score dict misses:",[j]
+					print (" score dict misses:",[j])
 					oup_log.write(" %s" % j)
 					o_scores[j] = {j:cutoff}
 					#print "Quit!"
@@ -776,15 +776,15 @@ class parser:
 		outbase = "%s_c%ih%i" % (outbase,cutoff,homogenize)
 		
 		oup = open(outbase+".sym","w")
-		print "Generate output: %s" % (outbase+".sym")
+		print ("Generate output: %s" % (outbase+".sym"))
 		for i in s_scores.keys():
 			for j in range(len(s_scores[i][0])):
 				oup.write("%s\t%s\t%f\n" % (i,
 											s_scores[i][0][j],
 											s_scores[i][1][j]))							
-		print "Closing output stream..."
+		print ("Closing output stream...")
 		oup.close()
-		print "Done!"
+		print ("Done!")
 	
 	
 	def sym2(self,score):
@@ -849,11 +849,11 @@ class parser:
 		index  = {}	     
 		inp = open(sym_score,"r")
 		inline = inp.readline()
-		print "Generate score dict..."
+		print ("Generate score dict...")
 		c = 0
 		while inline != "":
 			if c % 100000 == 0:
-				print " %ix100k" % (c/100000)
+				print (" %ix100k" % (c/100000))
 			c += 1
 
 			llist = inline.split("\t")
@@ -879,7 +879,7 @@ class parser:
 		sline = ""	      
 		ikeys = index.keys()
 		oup.write("     %i\n" % len(ikeys))
-		print "Write scores..."
+		print ("Write scores...")
 		for i in index.keys():
 			#print i
 			count = 0
@@ -890,13 +890,13 @@ class parser:
 				else:
 					sline = sline + "1.0000  "		      
 			if len(i)>10:
-				print "The identifier is longer than 10 characters."
-				print "Should run index_names\nExit!"
+				print ("The identifier is longer than 10 characters.")
+				print ("Should run index_names\nExit!")
 				sys.exit(0)
 			else:
 				oup.write(i+(10-len(i))*" "+sline[:-2]+"\n")
 			sline = ""
-		print "Done!"
+		print ("Done!")
 
 	##
 	# This will generate a score matrix for MEGA. The format is like:
@@ -926,11 +926,11 @@ class parser:
 		index  = {}	     
 		inp = open(sym_score,"r")
 		inline = inp.readline()
-		print "Generate score dict..."
+		print ("Generate score dict...")
 		c = 0
 		while inline != "":
 			if c % 100000 == 0:
-				print " %ix100k" % (c/100000)
+				print (" %ix100k" % (c/100000))
 			c += 1
 
 			llist = self.rmlb(inline).split("\t")
@@ -956,7 +956,7 @@ class parser:
 		oup.write("#mega\n!Title %s;\n"%sym_score + \
 			  "!format DataType=distance DataFormat=upperright;\n\n")
 		
-		print "Write taxa..."
+		print ("Write taxa...")
 		ikeys = index.keys()
 		ikeys.sort()
 		for i in ikeys:
@@ -964,7 +964,7 @@ class parser:
 		oup.write("\n")
 		
 		# don't need self, only upper half matrix
-		print "Write scores..."
+		print ("Write scores...")
 		sline = ""	      
 		for i in range(len(ikeys)):
 			#print i
@@ -977,16 +977,16 @@ class parser:
 			oup.write(" "+sline[:-2]+"\n")
 			sline = ""
 		
-		print "Close output stream..."
+		print ("Close output stream...")
 		oup.close()
-		print "Done!"   
+		print ("Done!" )  
 
 	#
 	# Take symmetrified score file and generate a score matrix.
 	#
 	def score_matrix(self, score):
 		
-		print "Read scores into a dictionary..."
+		print ("Read scores into a dictionary...")
 		D = {} #{id1:{id2:score}}
 		inp = open(score)
 		inl = inp.readline()
@@ -1002,7 +1002,7 @@ class parser:
 				D[id2][id1] = S
 			inl = inp.readline()
 		
-		print "Write matrix..."
+		print ("Write matrix...")
 		ids = D.keys()
 		ids.sort()
 		oup = open(score+".matrix","w")
@@ -1018,7 +1018,7 @@ class parser:
 					oup.write("\t%s" % D[i][j])
 			oup.write("\n")
 		
-		print "Done!"
+		print ("Done!")
 	
 	##
 	# This will parse the scores out of the alignment part of blast output. The
@@ -1044,7 +1044,7 @@ class parser:
 		got_p = 0
 		#countQ = 0
 		
-		print "Query processed:"
+		print ("Query processed:")
 		while inline != "":
 			if inline[-2:] == "\r\n":
 				inline = inline[:-2]
@@ -1053,7 +1053,7 @@ class parser:
 			
 			if len(inline) > 7 and inline[:7] == "Query= ":
 				query = inline[7:]
-				print " ",query
+				print (" ",query)
 
 			elif len(inline) > 1 and inline[0] == ">":
 				sbjct = inline[1:]
@@ -1106,7 +1106,7 @@ class parser:
 					convert = -math.log10(float(evalue))
 					oup.write("%s\t%s\t%s\t%f\n" % (query,sbjct,evalue,convert))
 				except ValueError:
-					print "Value can't be transformed:",evalue
+					print ("Value can't be transformed:",evalue)
 				got_e = 0
 	
 			elif(target == "percentID" or target == "percentSIM") and got_p:	
@@ -1145,9 +1145,9 @@ class parser:
 		#    [R,ori] as values 
 		# 2. Sort keys then check for overlap
 		oup = open(blast+".merged.coord","w")
-		print "Process subj:"
+		print ("Process subj:")
 		for i in slist:
-			print "",i
+			print ("",i)
 			
 			cdict  = {}
 			inp    = open(blast,"r")
@@ -1196,9 +1196,9 @@ class parser:
 						#print "overlap"
 						# check ori, just print a warning
 						if cdict[last][1] != cdict[j][1]:
-							print "  Discrepancy: %s/%s,%s <-> %s/%s,%s" % \
+							print ("  Discrepancy: %s/%s,%s <-> %s/%s,%s" % \
 									 (cdict[last][1],last,cdict[last][0],
-									  cdict[j][1],i,cdict[j][0])
+									  cdict[j][1],i,cdict[j][0]))
 						cdict[last][0] = cdict[j][0]
 						
 						# check if i is the last one, if so, since its coord
@@ -1255,13 +1255,13 @@ class parser:
 	## 
 	def parse_table(self,blast,target,T,verbose=0,wself=0,lenT="",fasta="",QorS=0):
 
-		print "Parse blast table:"
-		print " Table name:",blast
-		print " Target    :",target
-		print " Threshold :",T
-		print " Verbose   :",verbose
-		print " Wself     :",wself
-		print ""
+		print ("Parse blast table:")
+		print (" Table name:",blast)
+		print (" Target    :",target)
+		print (" Threshold :",T)
+		print (" Verbose   :",verbose)
+		print (" Wself     :",wself)
+		print ("")
 		
 		inp = open(blast,"r")
 		oup = open(blast+"_T%i_%s.parse" % (T,target),"w")
@@ -1270,11 +1270,11 @@ class parser:
 		minLen = 100
 		if lenT != "":
 			lenT = float(lenT)/100.0
-			print "lenT      :",lenT
-			print "Fasta     :",fasta
-			print "QorS      :",QorS
+			print ("lenT      :",lenT)
+			print ("Fasta     :",fasta)
+			print ("QorS      :",QorS)
 			if fasta == "":
-				print "If you set lenT, you need the sequence file!"
+				print ("If you set lenT, you need the sequence file!")
 				sys.exit(0)
 			else:
 				sizes = fmanager.get_sizes(fasta,1)
@@ -1285,7 +1285,7 @@ class parser:
 		sdict  = {} # store the idx of those with scores taken
 		while inline != "":
 			if c%10000 == 0:
-				print " %i x10k" % (c/10000)
+				print (" %i x10k" % (c/10000))
 			c += 1  
 			if inline[0] != "#":
 				llist = inline.split("\t")			
@@ -1314,7 +1314,7 @@ class parser:
 					try:
 						ef = -math.log10(float(evalue))
 					except OverflowError:
-						print "Overflow:",evalue
+						print ("Overflow:",evalue)
 						sys.exit(0)
 					# will regard evalue >= T as T
 					#print llist[0],llist[1],float(evalue),ef,T
@@ -1350,7 +1350,7 @@ class parser:
 					else:	
 						out_str = "%i/%s\t%f" % (match,llist[3],ident)
 				elif qualify:
-					print "HERE"
+					print ("HERE")
 					tlist = target.split(",")
 					for j in tlist:
 						out_str = out_str + llist[int(j)] + "\t"
@@ -1362,8 +1362,8 @@ class parser:
 					
 			inline = inp.readline()
 
-		print "Total %i pairs, %i qualified and written" % (c,countW)
-		print "Done!"
+		print ("Total %i pairs, %i qualified and written" % (c,countW))
+		print ("Done!")
 		
 
 	##
@@ -1377,19 +1377,19 @@ class parser:
 	##
 	def parse_table2(self,blast,E,I,H):
 		
-		print "Check inconsistency, E, I defaults are set to zero"
+		print ("Check inconsistency, E, I defaults are set to zero")
 		
 		inp = open(blast,"r")
 		inl = inp.readline()
 		qdict = {}
-		print "Parse blast output:"
+		print ("Parse blast output:")
 		while inl != "":
 			if inl[0] != "#":
 				L = inl.split("\t")
 				try:
 					evalue = float(L[-2])
 				except IndexError:
-					print "Evalue ERR:",L
+					print ("Evalue ERR:",L)
 					sys.exit(0)
 				if evalue == 0:
 					evalue = 200
@@ -1408,12 +1408,12 @@ class parser:
 						qdict[L[0]] = [1,[L[1]]]
 			inl = inp.readline()
 
-		print "Generate output..."
+		print ("Generate output...")
 		oup = open(blast+".E%iI%iL%i.parsed" % (int(E),int(I),H),"w")
 		for i in qdict:
 			oup.write("%s\t%i\t%s\n" % (i,qdict[i][0],
 									  string.joinfields(qdict[i][1],",")))
-		print "Done!"
+		print ("Done!")
 
 
 		
@@ -1425,12 +1425,12 @@ class parser:
 		inp = open(blast,"r")		
 		oup = open("%s_E%i_I%i.out" % (blast,E,I),"w")
 		inl = inp.readline()
-		print "Parse blast output:"
+		print ("Parse blast output:")
 		c = 0
 		countE = 0
 		while inl != "":
 			if c%10000 == 0:
-				print " %i x10k" % (c/10000)
+				print (" %i x10k" % (c/10000))
 			c += 1
 			L = inl.split("\t")
 			evalue = L[-2]
@@ -1438,7 +1438,7 @@ class parser:
 				ident  = float(L[2])
 			except ValueError:
 				# problem with line format
-				print "ERR:",L
+				print ("ERR:",L)
 				inl = inp.readline()
 				continue
 			if evalue[0] == "e":
@@ -1448,7 +1448,7 @@ class parser:
 			try:
 				ef = -math.log10(float(evalue))
 			except OverflowError:
-				print "Overflow:",evalue
+				print ("Overflow:",evalue)
 				sys.exit(0)
 			
 			if ef >= E and ident > float(I):
@@ -1458,9 +1458,9 @@ class parser:
 				countE += 1
 			inl = inp.readline()
 		
-		print "Total %i scores, %i eliminated" % (c,countE)
+		print ("Total %i scores, %i eliminated" % (c,countE))
 			
-		print "Done!"
+		print ("Done!")
 	
 	
 	def parse_table4(self,blast,E,I,H):
@@ -1468,19 +1468,19 @@ class parser:
 		oup = open(blast+".E%iI%iL%i.parse4" % (int(E),int(I),H),"w")
 		inl = inp.readline()
 		countT = countQ = 0
-		print "BLAST file :", blast
-		print "Output file:", blast+".E%iI%iL%i.parse4" % (int(E),int(I),H)
+		print ("BLAST file :", blast)
+		print ("Output file:", blast+".E%iI%iL%i.parse4" % (int(E),int(I),H))
 		c = 0
 		while inl != "":
 			if inl[0] != "#":
 				L = inl.split("\t")
 				if c % 1e5 == 0:
-					print " %i x 100k" % (c/1e5)
+					print (" %i x 100k" % (c/1e5))
 				c += 1
 				try:
 					evalue = float(L[-2])
 				except IndexError:
-					print L
+					print (L)
 					sys.exit(0)
 				if evalue == 0:
 					evalue = 400
@@ -1495,8 +1495,8 @@ class parser:
 				countT += 1
 			inl = inp.readline()
 		
-		print "Total %i lines, %i qualified" % (countT,countQ)
-		print "Done!"
+		print ("Total %i lines, %i qualified" % (countT,countQ))
+		print ("Done!")
 		
 		
 	#
@@ -1511,7 +1511,7 @@ class parser:
 		oup = open("%s_T%i.merged" % (score,T),"w")
 		oup2= open("%s_T%i.merged.idx" % (score,T),"w")
 		inl = inp.readline()
-		print "Merge blast score:"
+		print ("Merge blast score:")
 		c = 0
 		
 		# the seq id of the kept score as key, a dict as value with
@@ -1521,7 +1521,7 @@ class parser:
 		tdict = {} 
 		while inl != "":
 			if c%10000 == 0:
-				print " %i x10k" % (c/10000)
+				print (" %i x10k" % (c/10000))
 			c += 1  
 			L = inl.split("\t")
 			if float(L[-1]) >= T:
@@ -1547,7 +1547,7 @@ class parser:
 		qTuple = self.dbtask.select("SELECT count(*) FROM %s" % \
 									self.config["table1"])
 
-		print "Parse blast score from %i queries:" % qTuple[0][0]
+		print ("Parse blast score from %i queries:" % qTuple[0][0])
 
 		if outbase == "":
 			outbase = self.config["table1"]
@@ -1560,7 +1560,7 @@ class parser:
 		INCREMENT = 100
 		
 		while has_more:
-			print " ",c*INCREMENT+1,"-",(c+1)*INCREMENT
+			print (" ",c*INCREMENT+1,"-",(c+1)*INCREMENT)
 
 			qTuple = self.dbtask.select(\
 				"SELECT data FROM %s WHERE " % self.config["table1"] +\
@@ -1569,7 +1569,7 @@ class parser:
 
 			if qTuple == []:
 				has_more = 0
-				print " done..."
+				print (" done...")
 			else:
 
 				for j in qTuple:
@@ -1623,7 +1623,7 @@ class parser:
 	def check_acc(self,acc_file,parsed_file):
 
 		# constructing acc_dict, sputnik_variant as key, real acc as value
-		print "\nConstructing acc_dict...\n"
+		print ("\nConstructing acc_dict...\n")
 		inp = open(acc_file,"r")
 		inline = inp.readline()
 
@@ -1647,7 +1647,7 @@ class parser:
 			inline = inp.readline()
 
 		# compare acc_dict against parsed_file, regenerate output
-		print "Checking parsed file...\n"
+		print ("Checking parsed file...\n")
 		inp = open(parsed_file,"r")
 		oup = open(parsed_file+".chk","w")
 		inline = inp.readline()
@@ -1666,7 +1666,7 @@ class parser:
 			inline = inp.readline()
 			count = count+1
 			if count % 100000 == 0:
-				print " %ik" % (count/1000)
+				print (" %ik" % (count/1000))
 
 	##
 	# Check if query or subject is missing in the BLAST output
@@ -1683,7 +1683,7 @@ class parser:
 		while inl != "":
 			L = inl.split("\t")
 			if L[qors] not in FD:
-				print "Should not happen:",L[qors]
+				print ("Should not happen:",L[qors])
 			else:
 				FD[L[qors]] = 1			
 			inl = inp.readline()
@@ -1705,7 +1705,7 @@ class parser:
 	## 
 	def get_selected(self,seq_list,score_file):
 		
-		print "Get scores based on: %s" % seq_list
+		print ("Get scores based on: %s" % seq_list)
 		# construct seq name dict
 		ndict = {}
 		inp = open(seq_list,"r")
@@ -1714,7 +1714,7 @@ class parser:
 			if not ndict.has_key(self.rmlb(inline)):
 				ndict[self.rmlb(inline)] = 1
 			else:
-				print "Redundant:",self.rmlb(inline)
+				print ("Redundant:",self.rmlb(inline))
 			inline = inp.readline()
 				
 		# scan through score file
@@ -1727,7 +1727,7 @@ class parser:
 				oup.write(inline)
 			inline = inp.readline()
 
-		print "Done!"
+		print ("Done!")
 	
 	##
 	# This function gets the subject part of the alignment. But not that simple
@@ -1755,7 +1755,7 @@ class parser:
 		else:
 			INC = 1
 		
-		print "Start extract coding sequences"
+		print ("Start extract coding sequences")
 
 		#
 		# this part gets all subj sequences out of the blast output file
@@ -1770,7 +1770,7 @@ class parser:
 		countSubj = 0
 		while inline != "":
 			if inline[:7] == "Query= ":
-				print "Query:",inline[7:-1]
+				print ("Query:",inline[7:-1])
 				pass
 			# the need to find "score =" is due to the presence of multiple
 			# matching areas that are disjuct.
@@ -1780,7 +1780,7 @@ class parser:
 				# one into dict
 				if seq != "":
 					if L == '':
-						print "Is this WU blast? Need to set the flag!"
+						print ("Is this WU blast? Need to set the flag!")
 						sys.exit()
 					# rid of non-alpha characters
 					if seq.find("-") != -1:
@@ -1830,7 +1830,7 @@ class parser:
 				if not hasL:
 					# if wu blast, L coord is the second non-empty element.
 					if wu:
-						print "NOT DEALT WITH"
+						print ("NOT DEALT WITH")
 						sys.exit(0)
 						for j in llist[1:]:
 							if j != "":
@@ -1869,7 +1869,7 @@ class parser:
 			for i in segments:
 				seq = seq + i
 		if not ignorestop and seq.find("*") != -1:
-			print "STOP"
+			print ("STOP")
 			segments = seq.split("*")
 			seq = ""
 			for i in segments:
@@ -1920,7 +1920,7 @@ class parser:
 		#
 		# consolidate the coordinates for sequences in each subj
 		#
-		print "\nConsolidate coordinates:"
+		print ("\nConsolidate coordinates:")
 		for i in cdict.keys():
 			
 			#print "Elements:",len(cdict[i])
@@ -2003,7 +2003,7 @@ class parser:
 		#
 		# load and assemble sequences
 		#
-		print "\nAssemble sequences:"
+		print ("\nAssemble sequences:")
 		
 		# load sequences into memory... this will be a problem...
 		inp = open(blast+"_ext.fa","r")
@@ -2078,7 +2078,7 @@ class parser:
 
 
 		# output assembled sequence
-		print "\nOutput assembled sequences..."
+		print ("\nOutput assembled sequences...")
 		
 		countAssembled = 0
 		for i in cdict.keys():
@@ -2114,10 +2114,10 @@ class parser:
 			for j in slist:
 				oup.write(">%s_%i_%i\n%s\n" % (j[0],j[1],j[2],j[3]))
 		
-		print "\nTotal %i unique subjects"		   % countSubj
-		print "      %i sequences to be assembled" % countAssemblee
-		print "      %i assembled sequences"	% countAssembled
-		print "Done!\n"
+		print ("\nTotal %i unique subjects"		   % countSubj)
+		print ("      %i sequences to be assembled" % countAssemblee)
+		print ("      %i assembled sequences"	% countAssembled)
+		print ("Done!\n")
 
 	##
 	# Output a non-redundant list of matching subjects. The code for parsing
@@ -2131,13 +2131,13 @@ class parser:
 	##
 	def get_subj(self,blast,desc,style,ttype,T):
 
-		print "Get matching subjects:"
-		print " Blast output:",blast
-		print " Desc flag   :",desc
-		print " Style       :",style
+		print ("Get matching subjects:")
+		print (" Blast output:",blast)
+		print (" Desc flag   :",desc)
+		print (" Style       :",style)
 		
 		if T != 0 and style != 9:
-			print "WARNING: T can't be apply to style 1 at this point!"
+			print ("WARNING: T can't be apply to style 1 at this point!")
 		
 		inp = open(blast,"r")
 		oup = open(blast+".gi","w")
@@ -2150,7 +2150,7 @@ class parser:
 				# typical alignment format
 				if style == 1:
 					if inline.find("Query=") != -1:
-						print inline[6:-1]
+						print (inline[6:-1])
 					elif inline[0] == ">":
 						if not sdict.has_key(inline[1:-1]):
 							count = count+ 1
@@ -2178,9 +2178,9 @@ class parser:
 									count = count+ 1
 									oup.write(llist[1]+"\n")
 						except IndexError:
-							print "ERROR-line format:",[inline]
+							print ("ERROR-line format:",[inline])
 				else:
-					print "Unknown style type, quit!"
+					print ("Unknown style type, quit!")
 					sys.exit(0)
 			# parse descriptor lines
 			else:
@@ -2216,8 +2216,8 @@ class parser:
 				#oup.write("%s\t%i\n" % (j,sdict[j]))
 				oup.write(j+"\n")
 				
-		print "Total %i non-redundant matching subjects" % count
-		print "Done!"
+		print ("Total %i non-redundant matching subjects" % count)
+		print ("Done!")
 
 	##
 	# Replace the names with indices
@@ -2230,7 +2230,7 @@ class parser:
 	##
 	def index_names(self,score):
 		
-		print "Start converting names to indices:"
+		print ("Start converting names to indices:")
 		inp  = open(score,"r")
 		oup1 = open(score+".mod","w")
 		oup2 = open(score+".name","w")
@@ -2243,7 +2243,7 @@ class parser:
 		c = 0
 		while inline != "":
 			if c%10000 == 0:
-				print " %ix10k" % (c/10000)
+				print (" %ix10k" % (c/10000))
 			c += 1
 			llist = inline.split("\t")
 			if not ndict.has_key(llist[0]):
@@ -2261,8 +2261,8 @@ class parser:
 					
 			inline = inp.readline()
 
-		print "Total %i score pairs with %i unique indices" % (c,count)
-		print "Done!"
+		print ("Total %i score pairs with %i unique indices" % (c,count))
+		print ("Done!")
 
 
 	##
@@ -2280,7 +2280,7 @@ class parser:
 		while inline != "":
 			L = inline[:-1].split("\t")
 			if ndict.has_key(L[1]):
-				print "Redundant names"
+				print ("Redundant names")
 			else:
 				ndict[L[1]] = L[0]
 			inline = inp.readline()
@@ -2302,8 +2302,8 @@ class parser:
 				oup.write(inline)
 			inline = inp.readline()
 
-		print "Found %s, not found %s" % (countF,countN)
-		print "Done!"
+		print ("Found %s, not found %s" % (countF,countN))
+		print ("Done!")
 	
 	##
 	# Specifically parse the m = 0 output into m = 8 format
@@ -2333,10 +2333,10 @@ class parser:
 		qL = qR = sL = sR = 0
 		countL = 0
 		if flag:
-			print "Start parsing %s" % blast
+			print ("Start parsing %s" % blast)
 		while inl != "":
 			if flag and countL % 100000 == 0:
-				print " %ix100k" % (countL/100000)
+				print (" %ix100k" % (countL/100000))
 			countL += 1
 			if inl[-2:] == "\r\n":
 				inl = inl[:-2]
@@ -2435,7 +2435,7 @@ class parser:
 		oup.write("%s\n" % (string.joinfields(olist,"\t")))
 		
 		if flag:
-			print "Total %i subject lines. Done!" % countL
+			print ("Total %i subject lines. Done!" % countL)
 		
 	
 	#
@@ -2443,7 +2443,7 @@ class parser:
 	#
 	def parse_align3(self,blast,seq_id):
 		
-		print "\nGet %s from %s:" % (blast,seq_id)
+		print ("\nGet %s from %s:" % (blast,seq_id))
 		inp = open(blast,"r")
 		oup = open(seq_id+".out","w")
 		inl = inp.readline()
@@ -2473,7 +2473,7 @@ class parser:
 				olist.append(inl)
 			inl = inp.readline()
 		
-		print " found %i fimes." % count
+		print (" found %i fimes." % count)
 
 	##
 	# Parse the alignment parts and output the gap information:
@@ -2567,9 +2567,9 @@ class parser:
 					#print "Q:",qI,qgap_size
 					#print "S:",sI,sgap_size		
 			else:
-				print "ERR:query and subjt strings different length"
-				print qstr
-				print sstr
+				print ("ERR:query and subjt strings different length")
+				print (qstr)
+				print (sstr)
 				sys.exit(0)
 			
 			return qL,sL
@@ -2597,7 +2597,7 @@ class parser:
 			return glist
 		"""
 		
-		print "Find gaps..."
+		print ("Find gaps...")
 		inl = inp.readline()
 		query = subjt = queryNew = subjtNew = qline = sline = ""
 		qC = []
@@ -2668,7 +2668,7 @@ class parser:
 		oup2.write("%s\t%s\n%s\t%s\n\n" % (query,qline,subjt,sline))
 
 	
-		print "Done!"
+		print ("Done!")
 
 
 	##
@@ -2708,7 +2708,7 @@ class parser:
 		skip = 0
 		#query_end = 0
 		
-		print "Start parsing..."
+		print ("Start parsing...")
 		while inline != "":
 			
 			if inline[-2:] == "\r\n":
@@ -2837,7 +2837,7 @@ class parser:
 			for j in outlines:
 				oup.write(j+"\n")
 					
-		print "\nParse_align done!\n"
+		print ("\nParse_align done!\n")
 	
 	#
 	# Generate output like:
@@ -2880,7 +2880,7 @@ class parser:
 				# OUTPUT point, so every stretch has output
 				if OL[0] != "":
 					if countL % 1e3 == 0:
-						print " %i k" % (countL/1e3)
+						print (" %i k" % (countL/1e3))
 					countL += 1
 					OL[6:10] = [qL,qR,sL,sR]
 					oup.write("#%s %s %s-%s|%s-%s %s\n" % \
@@ -2965,7 +2965,7 @@ class parser:
 		oup.write("%s\n%s\n" % (OL[12],OL[13]))
 		countL += 1
 		
-		print "Total %i pairs. Done!" % countL		
+		print ("Total %i pairs. Done!" % countL)		
 
 	def refine(self,log):
 	
@@ -2975,7 +2975,7 @@ class parser:
 		inl = inp.readline()
 		# read into a dict: subjt as key, queries as value in a list
 		sdict = {}
-		print "Start refinement..."
+		print ("Start refinement...")
 		while inl != "":
 			inl = self.rmlb(inl)
 		
@@ -3005,7 +3005,7 @@ class parser:
 
 		# modify sdict so it is ranked
 		tdict = {}
-		print "Rank..."
+		print ("Rank...")
 		for i in sdict:
 			qlist = sdict[i]
 			lens = {}        # length as key, pid as value
@@ -3043,7 +3043,7 @@ class parser:
 		sdict = tdict			
 
 		# now put the ranking info back to the log file.
-		print "Generate output..."
+		print ("Generate output...")
 		inp = open(log,"r")
 		oup = open(log+".refined","w")
 		inl = inp.readline()
@@ -3053,7 +3053,7 @@ class parser:
 			if inl.find("Query=") != -1:
 				query = inl[len("Query=")+1:]
 				ostr = inl
-				print "",query
+				print ("",query)
 			elif inl.find("[") != -1:
 				subjt = inl[inl.find(":")+1:inl.find("(")]
 				pid   = int(inl[inl.find("(")+1:inl.find(")")-1])
@@ -3108,14 +3108,14 @@ class parser:
 	def get_qualified(self,log,fasta,qtag="y",priority=0,):
 
 		# read file into a dict
-		print "Start get_qualified:"
-		print "     log:",log
-		print "  format:",format
-		print "   fasta:",fasta
-		print "priority:",priority
-		print "    qtag:",qtag,"\n"
+		print ("Start get_qualified:")
+		print ("     log:",log)
+		print ("  format:",format)
+		print ("   fasta:",fasta)
+		print ("priority:",priority)
+		print ("    qtag:",qtag,"\n")
 
-		print "Read log file, parse qualified entries..."
+		print ("Read log file, parse qualified entries...")
 		inp = open(log,"r")
 		qdict = {}
 		
@@ -3126,7 +3126,7 @@ class parser:
 			if inline.find("Query=") != -1:
 				query = inline[inline.find(" ")+1:-1]
 				if qdict.has_key(query):
-					print "This shouldn't happen"
+					print ("This shouldn't happen")
 				else:
 					qdict[query] = []
 			elif inline[0] == "[":
@@ -3143,16 +3143,16 @@ class parser:
 							qdict[query].append(subj)
 			inline = inp.readline()
 		# single linkage
-		print "Single linkage..."
+		print ("Single linkage...")
 		clusters = link.get_relations2(qdict)
 			
 		# get sequence sizes
-		print "Get sequence size..."
+		print ("Get sequence size...")
 		fmanager = FastaManager.fasta_manager()
 		sdict     = fmanager.get_sizes(fasta,1)
 		
 		# generate output
-		print "Generate output..."
+		print ("Generate output...")
 		oup = open(log+".cluster","w")
 		for i in clusters:
 			#print "",i
@@ -3198,15 +3198,15 @@ class parser:
 						qOnly=0):
 		
 		# get size dict
-		print "Get sequence sizes..."
+		print ("Get sequence sizes...")
 		sizes = fmanager.get_sizes(fasta,1)
 		inp = open(blast,"r")
 		inl = inp.readline()
-		print "Parse blast output:"
-		print " eT    :",eT
-		print " idenT :",idenT
-		print " matchL:",matchL
-		print " lengT :",lengT
+		print ("Parse blast output:")
+		print (" eT    :",eT)
+		print (" idenT :",idenT)
+		print (" matchL:",matchL)
+		print (" lengT :",lengT)
 		countQ = 0
 		#oupL = open(blast+".err_log","w")
 		c = 0
@@ -3215,7 +3215,7 @@ class parser:
 		while inl != "":
 			print[inl]
 			if c > 0 and c%10000 == 0:
-				print " %i x 10k" % (c/10000)
+				print (" %i x 10k" % (c/10000))
 			c += 1
 			
 			if inl[0] == "#":
@@ -3234,7 +3234,7 @@ class parser:
 			try:
 				E = math.fabs(math.log10(float(E)))
 			except ValueError:
-				print "Malformed Evalue:",E
+				print ("Malformed Evalue:",E)
 				inl = inp.readline()
 				continue
 			
@@ -3243,9 +3243,9 @@ class parser:
 				try:
 					N = sizes[L[0]]
 				except KeyError:
-					print "%s not in the size library" % L[0]
-					print len(L)
-					print L[:1]
+					print ("%s not in the size library" % L[0])
+					print (len(L))
+					print (L[:1])
 					sys.exit(0)
 			elif qOnly == 2:
 				N = sizes[L[1]]
@@ -3269,8 +3269,8 @@ class parser:
 			#	print L[0],L[1],I,M,L[-2],E
 			inl = inp.readline()
 		
-		print "%i total, %i qualified" % (c,countQ)
-		print "Done!"
+		print ("%i total, %i qualified" % (c,countQ))
+		print ("Done!")
 		
 		
 	#
@@ -3287,7 +3287,7 @@ class parser:
 	def get_qualified3(self,blast,fasta,idenT=95,matchL=150,lengT=0.9):
 		
 		# get size dict
-		print "Get sequence sizes..."
+		print ("Get sequence sizes...")
 		sizes = fmanager.get_sizes(fasta,1)
 		
 		# construct a dict with: query as key, qualified entries in a list as
@@ -3295,10 +3295,10 @@ class parser:
 		qdict = {}
 		inp = open(blast,"r")
 		inl = inp.readline()
-		print "Parse blast output:"
-		print " idenT :",idenT
-		print " matchL:",matchL
-		print " lengT :",lengT
+		print ("Parse blast output:")
+		print (" idenT :",idenT)
+		print (" matchL:",matchL)
+		print (" lengT :",lengT)
 		countQ = 0
 		#oupL = open(blast+".err_log","w")
 		c = 0
@@ -3317,7 +3317,7 @@ class parser:
 					N = sizes[L[1]]
 			
 			if c > 0 and c%10000 == 0:
-				print " %i x 10k" % (c/10000)
+				print (" %i x 10k" % (c/10000))
 			c += 1
 			if L[0] != L[1] and I >= float(idenT) and M >= matchL and \
 				float(M)/float(N) >= lengT:
@@ -3332,14 +3332,14 @@ class parser:
 					countQ += 1
 					qdict[L[0]] = [L[1]]
 			inl = inp.readline()
-		print "",countQ,"qualified pairs."
+		print ("",countQ,"qualified pairs.")
 		
 		# single linkage
-		print "Single linkage..."
+		print ("Single linkage...")
 		clusters = link.get_relations(qdict,isdict=1)
 			
 		# generate output
-		print "Generate output..."
+		print ("Generate output...")
 		oup = open(blast+".cluster","w")
 		oup.write("Thresholds: idenT=%i, matchL=%i, lengT=%f\n" % \
 					(idenT,matchL,lengT))
@@ -3372,7 +3372,7 @@ class parser:
 			else:
 				oup.write("%s\t-\n" % i[0])
 		
-		print "Done!"
+		print ("Done!")
 
 	
 	##
@@ -3406,7 +3406,7 @@ class parser:
 			
 			inline = inp.readline()
 			
-		print "Done!"
+		print ("Done!")
 		
 	
 
@@ -3432,17 +3432,17 @@ class parser:
 	##
 	def get_reciprocal(self,blast,target,fasta,sizeP,wself,oflag=0):
 		
-		print "Blast  :",blast
-		print "Target :",target
-		print "Fasta  :",fasta
-		print "sizeP  :",sizeP
-		print "wself  :",wself
+		print ("Blast  :",blast)
+		print ("Target :",target)
+		print ("Fasta  :",fasta)
+		print ("sizeP  :",sizeP)
+		print ("wself  :",wself)
 		
 		inp = open(blast,"r")
 		inl = inp.readline()
 		
 		if target == "percentSIM":
-			print "Can't do percentSIM here, do percentID"
+			print ("Can't do percentSIM here, do percentID")
 			tidx = 2
 		elif target == "percentID":
 			tidx = 2
@@ -3483,7 +3483,7 @@ class parser:
 		if fasta != "":
 			sdict = fmanager.get_sizes(fasta,1)
 			if sizeP > 1:
-				print "Illegal size threhsold, should <= 1."
+				print ("Illegal size threhsold, should <= 1.")
 				fasta = ""
 		
 		oup = open(blast+".recip","w")
@@ -3530,12 +3530,12 @@ class parser:
 				written[i] = 0
 				written[ihit] = 0
 		
-		print "Done!"	
+		print ("Done!"	)
 	
 	def match_list(self,blast,name):
 	
 		# read qualified names into a list
-		print "Read name list..."	
+		print ("Read name list...")	
 		inp   = open(name,"r")
 		inl   = inp.readline()
 		names = {}
@@ -3545,7 +3545,7 @@ class parser:
 			inl = inp.readline()
 
 		# read blast fine
-		print "Read blast..."
+		print ("Read blast...")
 		inp = open(blast,"r")
 		inl = inp.readline()
 		bdict = {}
@@ -3557,7 +3557,7 @@ class parser:
 			inl = inp.readline()
 		
 		# Start matching subjects with qualified names and generate output
-		print "Matching..."
+		print ("Matching...")
 		countIN = 0
 		for i in bdict.keys():
 			if i in names:
@@ -3568,9 +3568,9 @@ class parser:
 		for i in names:
 			if names[i] == 0:
 				oup.write("%s\n" % i)
-		print "Total %i names, %i in query list" % (len(names.keys()),countIN)	
-		print "Total %i queries, %i in name list" % (len(bdict.keys()),countIN)		
-		print "\nDone!\n"
+		print ("Total %i names, %i in query list" % (len(names.keys()),countIN))
+		print ("Total %i queries, %i in name list" % (len(bdict.keys()),countIN))		
+		print ("\nDone!\n")
 	
 	#
 	# This function added taxa info to the end of line. NOT TESTED.
@@ -3591,7 +3591,7 @@ class parser:
 				oup.write("%s\t%s\n" % (inl,adict[L[1]]))
 			inl = inp.readline()
 			
-		print "Done!"	
+		print ("Done!"	)
 
 	##
 	# Parse log file generated by parse_align against the list generated by  
@@ -3624,21 +3624,21 @@ class parser:
 			else:
 				oup.write(inline)			
 			inline = inp.readline()		
-		print "Done!"		
+		print ("Done!"	)	
 
 	def delete(self,blast,glist):
 		
-		print "Read gene list..."
+		print ("Read gene list...")
 		gdict = futil.file_to_dict(glist,0)
 		
 		inp = open(blast,"r")
 		inl = inp.readline()
 		oup = open(blast+".mod","w")
 		countL = 0
-		print "Process line:"
+		print ("Process line:")
 		while inl != "":
 			if countL % 1000000 == 0:
-				print " %i x 1m" % (countL/1000)
+				print (" %i x 1m" % (countL/1000))
 			L   = inl.split("\t")
 			if not gdict.has_key(L[0]) and not gdict.has_key(L[1]):	
 				oup.write(inl)
@@ -3648,7 +3648,7 @@ class parser:
 			
 		inp.close()
 		oup.close()
-		print "Done!"
+		print ("Done!")
 		
 	#
 	# Simply rid of lines with -log(E value) above threshold
@@ -3661,7 +3661,7 @@ class parser:
 		countT = countQ = 0
 		while inl != "":
 			if countT % 10000 == 0:
-				print " %i x 10k" % (countT/10000)
+				print (" %i x 10k" % (countT/10000))
 			countT += 1
 			llist = inl.split("\t")
 			evalue = llist[10]
@@ -3673,7 +3673,7 @@ class parser:
 			try:
 				ef = -math.log10(float(evalue))
 			except OverflowError:
-				print "Overflow:",evalue
+				print ("Overflow:",evalue)
 				sys.exit(0)
 			if ef > float(T):
 				oup.write(inl)
@@ -3681,7 +3681,7 @@ class parser:
 				
 			inl = inp.readline()
 		
-		print "Total %i scores, %i qualfied at threshold %i" % (countT,countQ,T)
+		print ("Total %i scores, %i qualfied at threshold %i" % (countT,countQ,T))
 		
 	#
 	# BLAT output can be parsed by parse_align2. Two problems:
@@ -3718,7 +3718,7 @@ class parser:
 						 string.joinfields(L[10:],"\t")))
 			inl = inp.readline()
 			
-		print "Done!"
+		print ("Done!")
 	
 	def chain2(self,blast,gapL=0,fragT=80,chainT=90,debug=0):
 		pass
@@ -3737,26 +3737,26 @@ class parser:
 	#
 	def chain(self,blast,fastaQ,fastaS,gapL=0,fragT=80,chainT=90,debug=0):
 		
-		print "Get query sizes:",fastaQ
+		print ("Get query sizes:",fastaQ)
 		qsize = fmanager.get_sizes(fastaQ,1)
 		#qsize = {"ATL8C7090 atl7C985":5000}
 		#qsize = {"PUT_AT9_1244":66,"PUT_AT9_92766":105}
 		#qsize = {"q1":1}
 		
-		print "Get subject sizes:",fastaS
+		print ("Get subject sizes:",fastaS)
 		ssize = fmanager.get_sizes(fastaS,1)
 		#ssize = {"4":5000}
 		#ssize = {"1":33132539,"2":19320864,"4":23328337}
 		#ssize = {"s1":1}
 		
-		print "Read file:", blast
+		print ("Read file:", blast)
 		inp    = open(blast)
 		inl    = inp.readline()
 		bdict  = {}
 		count = 0
 		while inl != "":
 			if count%1e5 == 0:
-				print " %i x 100k" % (count/1e5)
+				print (" %i x 100k" % (count/1e5))
 			count += 1
 			L  = inl.split("\t")
 			sL = int(L[8])
@@ -3783,14 +3783,14 @@ class parser:
 			inl = inp.readline()
 		
 		for i in bdict:
-			print i
+			print (i)
 			for j in bdict[i]:
-				print "",j
+				print ("",j)
 				for k in bdict[i][j]:
-					print " ",k,bdict[i][j][k]
+					print (" ",k,bdict[i][j][k])
 				
 		# follow only longest chain above fragT
-		print "Iterate query..."
+		print ("Iterate query...")
 		non    = []
 		oup    = open("%s_I%iC%iG%i.chain"   %(blast,fragT,chainT,gapL),"w")
 		oup1   = open("%s_I%iC%iG%i.allfrag" %(blast,fragT,chainT,gapL),"w")
@@ -3804,7 +3804,7 @@ class parser:
 		qQ     = {} # qualified query 
 		for i in bdict:               # iterate query
 			if countQ%1000 == 0:
-				print " %i k" % (countQ/1000)
+				print (" %i k" % (countQ/1000))
 			countQ += 1
 			for j in bdict[i]:        # iterate subj
 				countS += 1
@@ -3818,11 +3818,11 @@ class parser:
 				for k in range(len(c)): # iterate sorted 5' coord
 					# the end of the dict
 					if debug:
-						print "single:",single
-						print "chains:",chains
+						print ("single:",single)
+						print ("chains:",chains)
 
 					if debug:
-						print i,j,c[k],bdict[i][j][c[k]][1],"->",fragT
+						print (i,j,c[k],bdict[i][j][c[k]][1],"->",fragT)
 					if k+1 == len(c):
 						if single == [] and bdict[i][j][c[k]][1] >= fragT:
 							# 0  1  2  3  4  5
@@ -3839,46 +3839,37 @@ class parser:
 					# if chain has ID < fragT or
 					if bdict[i][j][c[k]][1] < fragT:
 						if debug:
-							print " ID < fragT"
+							print (" ID < fragT")
 						
 					# bdict[L[0]][L[1]][sL] = [sR,ID,qL,qR,ori]
 					# if the next chain has ID < fragT or
 					# if 2nd qL is too far from 1st qR or
 					# if adj queires are not ordered
 					elif bdict[i][j][c[k+1]][1]<fragT                     or \
-					  	 bdict[i][j][c[k+1]][2]-bdict[i][j][c[k]][3]>gapL or \
-					  	 c[k+1]-bdict[i][j][c[k]][0]>gapL or \
-					  	 bdict[i][j][c[k]][2]>bdict[i][j][c[k+1]][2]:
-					  	case = [0,0,0,0]
-						if debug:
-							print " -> next frag not qualified"
-							print "   ",c[k+1],bdict[i][j][c[k+1]]
-					  	if bdict[i][j][c[k+1]][1] < fragT:
-					  		if debug:
-					  			print "  case0",bdict[i][j][c[k+1]][1],fragT
-					  		case[0] = 1
-					  	if bdict[i][j][c[k+1]][0]-bdict[i][j][c[k]][3]>gapL or \
-					  	   bdict[i][j][c[k+1]][0]-bdict[i][j][c[k]][1]>gapL:
-					  		if debug:
-					  			print "  case1",bdict[i][j][c[k+1]][0] - c[k], gapL
-					  		case[1] = 1
-					  	#if bdict[i][j][c[k]][4] != bdict[i][j][c[k+1]][0]:
-					  	#	case[2] = 1
-					  	if bdict[i][j][c[k]][2] > bdict[i][j][c[k+1]][2]:
-					  		if debug:
-					  			print "  case3",bdict[i][j][c[k]][2],bdict[i][j][c[k+1]][2]
-					  		case[3] = 1
-						# if this is empty, add the 1st element, otherwise, it is
-						# already in single list
-						if single == []:
-							single = [[c[k],bdict[i][j][c[k]][0],
-											bdict[i][j][c[k]][2],
-											bdict[i][j][c[k]][3],
-											bdict[i][j][c[k]][1],
-											bdict[i][j][c[k]][4]]]
-						chains.append(single)
-						# reset
-						single = []
+					bdict[i][j][c[k+1]][2]-bdict[i][j][c[k]][3]>gapL or \
+					c[k+1]-bdict[i][j][c[k]][0]>gapL or \
+					bdict[i][j][c[k]][2]>bdict[i][j][c[k+1]][2]:
+					    case = [0,0,0,0]
+					    if debug:
+					  	     print (" -> next frag not qualified")
+					  	     print ("   ",c[k+1],bdict[i][j][c[k+1]])
+					    if bdict[i][j][c[k+1]][1] < fragT:
+					  	     if debug:
+					  	         print ("  case0",bdict[i][j][c[k+1]][1],fragT)
+					  	     case[0] = 1
+					    if bdict[i][j][c[k+1]][0]-bdict[i][j][c[k]][3]>gapL or \
+					  	    bdict[i][j][c[k+1]][0]-bdict[i][j][c[k]][1]>gapL:
+					  	    if debug:
+					  	            print ("  case1",bdict[i][j][c[k+1]][0] - c[k], gapL)
+					  	    case[1] = 1
+					    if bdict[i][j][c[k]][2] > bdict[i][j][c[k+1]][2]:
+					  	     if debug:
+					  	         print ("  case3",bdict[i][j][c[k]][2],bdict[i][j][c[k+1]][2])
+					  	     case[3] = 1
+					    if single == []:
+						     single = [[c[k],bdict[i][j][c[k]][0],bdict[i][j][c[k]][2],bdict[i][j][c[k]][3],bdict[i][j][c[k]][1],bdict[i][j][c[k]][4]]]
+					    chains.append(single)
+					    single = []
 					# both segments are good
 					else:
 						#print "both good:",c[k],c[k+1]
@@ -3905,8 +3896,8 @@ class parser:
 				# END: for k (5' coord iteration)
 				
 				if debug:
-					print "\nCHAINS",
-					print chains,"\n"
+					print ("\nCHAINS",)
+					print (chains,"\n")
 				
 				# BEFORE 09/19,05', output only longest chain, now output all
 				# Process chains, get idx with max chain length based on 
@@ -3956,9 +3947,9 @@ class parser:
 						try:
 							cMat/cLen
 						except:
-							print "ERR: cMat/cLen:%i/%i" % (cMat,cLen)
-							print i,j,chains
-							print "EXIT, CHECK!"
+							print ("ERR: cMat/cLen:%i/%i" % (cMat,cLen))
+							print (i,j,chains)
+							print ("EXIT, CHECK!")
 							sys.exit(0)
 						
 						# chain composite %ID should be larger than chainT
@@ -3980,13 +3971,13 @@ class parser:
 					non.append(i)
 					countF += 1
 					
-		print "Total %i queries"   % countQ
-		print "      %i q-s pairs" % countS
-		print "      %i q-s with no frag > fragT"   % countF
-		print "      %i q-s with no chain > chainT" % countC
-		print "      %i qualified queries"          % len(qQ.keys())
-		print "      %i q-s with qualified chains"  % (countS-countF-countC)
-		print "Done!"
+		print ("Total %i queries"   % countQ)
+		print ("      %i q-s pairs" % countS)
+		print ("      %i q-s with no frag > fragT"   % countF)
+		print ("      %i q-s with no chain > chainT" % countC)
+		print ("      %i qualified queries"          % len(qQ.keys()))
+		print ("      %i q-s with qualified chains"  % (countS-countF-countC))
+		print ("Done!")
 
 	def pairs(self,blast):
 		
@@ -4015,9 +4006,9 @@ class parser:
 				
 			inl = inp.readline()
 		
-		print "Queries     :",countQ
-		print "Subjects    :",countS
-		print "Unique pairs:",countP
+		print ("Queries     :",countQ)
+		print ("Subjects    :",countS)
+		print ("Unique pairs:",countP)
 		
 	def get_sp(self,score,sp):
 		
@@ -4036,7 +4027,7 @@ class parser:
 				cQ += 1
 				oup.write(inl)
 			inl = inp.readline()
-		print "%i scores, %i qualified" % (c,cQ)
+		print ("%i scores, %i qualified" % (c,cQ))
 	
 	def filterout(self,blast,fasta,E,I,P,A):
 		
@@ -4045,11 +4036,11 @@ class parser:
 		CV = P  # alignment length coverage threshold
 		AL = A  # alignment length threshold		
 		
-		print "Read sequences"
+		print ("Read sequences")
 		fm  = FastaManager.fasta_manager()
 		ssize = fm.get_sizes(fasta,1)
 		
-		print "\nParse blast output"
+		print ("\nParse blast output")
 		inp = open(blast)
 		oup = open(blast+".E1I40A30C0.5","w")
 		inl = inp.readline()
@@ -4058,7 +4049,7 @@ class parser:
 		while inl != "":
 			L = inl.split("\t")
 			if c % 1e5 == 0:
-				print " %i x 10k" % (c/1e5)
+				print (" %i x 10k" % (c/1e5))
 			c += 1
 			if L[0] != L[1]:
 				qL = (float(L[-5])-float(L[-6])+1)/ssize[L[0]]
@@ -4068,13 +4059,13 @@ class parser:
 						oup.write(inl)
 						cQ += 1
 			inl = inp.readline()		
-		print "Total %i pairs, %i qualified" % (c,cQ)	
+		print ("Total %i pairs, %i qualified" % (c,cQ))	
 	
 	# assume the first two character are sp abbreviations and only two sp.
 	# in the blast output
 	def xspecies(self,blast):
 	
-		print "ASSUMING: 1st 2 char are sp abbrv, only 2 sp"
+		print ("ASSUMING: 1st 2 char are sp abbrv, only 2 sp")
 		inp = open(blast)
 		oup = open(blast+".xspecies","w")
 		inl = inp.readline()
@@ -4082,7 +4073,7 @@ class parser:
 		c = 0
 		while inl != "":
 			if c % 1e5 == 0:
-				print " %i x 10k" % (c/1e5)
+				print (" %i x 10k" % (c/1e5))
 			c += 1			
 			L = inl.split("\t")
 			sp1 = L[0][:2]
@@ -4098,11 +4089,11 @@ class parser:
 				else:
 					sp[sp2][L[1]] = 1
 			inl = inp.readline()
-		print "Species:",sp.keys()
+		print ("Species:",sp.keys())
 		for i in sp:
-			print "",i,len(sp[i].keys())
+			print ("",i,len(sp[i].keys()))
 			
-		print "Done!"
+		print ("Done!")
 	
 	####
 	# get the top match of each query, assume tabular blast output
@@ -4138,185 +4129,185 @@ class parser:
 		return astr
 
 	def help(self):
-		print "\npython ParseBlast.py\n"
-		print " -f  the code to excecute in ParseBlast:"
-		print "     parse_db   - parse blast out stored in psql db"
-		print "       REQUIRES: -c, -p, OPTIONAL: -T"
-		print "     parse_file - parse blast output file"
-		print "       REQUIRES: -blast"
-		print "       OPTIONAL: -outbase, -T, -target"
-		print "     parse_align- parse the alignment part from blast output"
-		print "       REQUIRES: -blast, OPTIONAL: -T,-self,-format"
-		print "       -style"
-		print "     refine - parse the log file to get info on mutiple subject"
-		print "       matches, REQUIRES: log"
-		print "     parse_align2-parse the output file from defaut to m = 8"
-		print "       REQUIRES: -blast"
-		print "     parse_align3-get the blast output of a particular subj."
-		print "       need -blast, -target"
-		print "     parse_align4-get the squence pairs out. NEED: blast"
-		print "     get_qualified - this is an extension for parse_align which"
-		print "       will filter modified log file and cluster the"
-		print "       qualified entries. REQUIRES:log,fasta,qtag.OPTIONAL:"
-		print "       priority"
-		print "     get_qualified2- this is another extension for parse_align"
-		print "       this will simply get the qualified subj for one entry. No"
-		print "       clustering is done. REQUIRES: log, qtag"
-		print "     get_qualified3- this is similar to get_qualified. But takes"
-		print "       tabular blast output and 3 threshold settings. REQUIRES:"
-		print "       blast, fasta, OPTIONAL: I,L,P"
-		print "     get_qualified4- similar to get_qualified3 but no clustering"
-		print "       REQUIRES: blast, fasta, OPTIONAL: E,I,L,P,Q"
-		print "     gettop - get the top match of every query. NEED: blast"
-		print "     parse_table- parse the tabular blast output"
-		print "       REQUIRES: -blast, -target, OPTIONAL: -T, verbose, wself"
-		print "     parse_table2 - parse tabular output based on idenity, length"
-		print "       and/or evalue and generate [Q][count][subjs]. REQUIRES: "
-		print "       -blast, OPTIONAL: E,I,L"
-		print "     parse_table3 - no storage involved, simply take blast out"
-		print "       then apply threshold (T) to get -log(e). REQUIRES: blast,"
-		print "       OPTIONAL: E,I"
-		print "     parse_table4 - parse tabular output based on idenity, length"
-		print "       and/or evalue. No modification to the lines. REQUIRES: "
-		print "       -blast, OPTIONAL: E,I,L"
-		print "     parse_gap  - parse blast out and get gap info. NEED: blast"
-		print "     threshold  - apply threshold to a blast output, NEED: blast"
-		print "        T"
-		print "     symmetrify - symmetrify, normalize, and homogenize scores."
-		print "       REQUIRES: -score. OPTIONAL: -cutoff,-outbase,-homog"
-		print "     check_acc  - check and correct accessions" 
-		print "       REQUIRES: -acc, -score"
-		print "     check_missing - check if query OR subj is missing in the"
-		print "       Blast output. NEED: blast, fasta, qors"
-		print "     spc_score  - get score for non-paramegnetic clustering"
-		print "       REQUIRES: -score. OPTIONAL: -per_id,-homog,-o"
-		print "     mcl_score  - get score matrix for MCL"
-		print "       REQUIRES: -score, OPTIONAL: -cutoff,-outbase,-homog"
-		print "     nei_score  - get score matrix for Neighbor in Phylip"
-		print "       REQUIRES: -score (modified by symmetrify)"
-		print "     mega_score - get score matrix for MEGA"
-		print "       REQUIRES: -score (modified by symmetrify)"
-		print "     score_matrix - plain old matrix, NEED: score (symmetrified)."
-		print "     select     - get scores for a subset of the sequences used"
-		print "       in the original BLAST run"
-		print "       REQUIRES: -list,-score"
-		print "     extract_cds- get the subject sequence out"
-		print "       REQUIRES: -blast. OPTIONAL: stype, T, wu, ignorestop"
-		print "     get_subj   - get a non-redundant list of matching subj"
-		print "       REQUIRES: -blast, OPTIONAL: desc, style, ttype, T"
-		print "     index_names- convert sequence names into indices"
-		print "       REQUIRES: -score"
-		print "     rename     - Change id within the fasta file"
-		print "       REQUIRES: -fasta, -name"
-		print "     merge_match- merge the subj coords of overlapping entries"
-		print "       in a blast output. REQUIRES: -blast, -feature"
-		print "     get_reciprocal - get the reciprocal best matches"
-		print "       REQUIRES: blast, OPTIONAL: target, fasta, T, wself, P"
-		print "     match_list - get the top match for each query sequence and"
-		print "       see if the top match is in a list of names. REQUIRES:"
-		print "       -blast, -name"
-		print "     match_list2 - based on the passed list file, output"
-		print "       qualified entries. REQUIRES: -matrix, -blast"
-		print "     log_vs_match - compare the log file against the list"
-		print "       generated by match_list. New flags are inserted, see"
-		print "       code doc for details. REQUIRES: -log, -list"
-		print "     match_fam - get subj with match to members of a specified"
-		print "       group of genes. REQUIRES: blast,matrix,target. OPTIONAL:"
-		print "       unk"
-		print "     delete - delete all scores involving any sequence in a list"
-		print "       -blast, -list"
-		print "     fix_blat - fix the modified blat -out=blast output by"
-		print "       parse_align2, NEED: blast (blat-based)"
-		print "     chain - link fragments together. NEED: blast,fastaQ,fastaS"
-		print "       OPTIONAL: gapL,fragT,chainT,debug"
-		print "     pairs - get unique pairs and IDs. NEED: blast"
-		print "     get_sp - get scores of particular species, NEED: score,sp"
-		print "     filterout - filter blastouput. NEED: blast,fasta. OPTIONAL:"
-		print "       E,I,P,A"
-		print "     xspecies - get only cross species matches. NEED: blast"  
-		print "     for_mega - do blast, parse score for mega. NEED: blast,"
-		print "       fasta"
-		print "     gettop - get top matches. NEED: blast"
-		print " -c    configuration"
-		print " -p    specify the block to excecute within config"
-		print " -log  log file generated by parse_align"
-		print " -blast blast output file, not required if -f parse_db"
-		print "       for_mega, this is the blast program dir"
-		print " -blast1 for get_reciprocal, first blast output in table format"
-		print " -blast2 for get_reciprocal, second output in table format"
-		print " -cluster cluster file"
-		print " -score score file, required for mcl_score and check_acc"
-		print " -list file with a list of seq_id"
-		print " -cid  cluster id"
-		print " -o    base name for output, default=[blast]"
-		print " -acc  name for fasta file with correct accessions"	   
-		print " -cutoff cutoff value for the matrix, default = 0"
-		print " -ttype threshold type, identity[default], or evalue"
-		print " -stype sequence type, protein [1] or nucleotide [0,default]"
-		print " -T    -log(E) threshold for parsing blast scores, default 0"
-		print "       or it will be compared against percentID or SIM, depend"
-		print "       on which is specified in target."
-		print "       -> For extract_cds, this is the allowed gap size between"
-		print "          stretches"
-		print "       -> For get_subj, ID or E threshold, not transformed"
-		print "       -> For get_reciprocal, length threshold"
-		print " -outbase output base name"
-		print " -H    homogenize by taking square [1],square root[2], or no"
-		print "	      homogenization at all [0,default]. For e value, use 1."
-		print " -per_id  number of top scores to get for SPC, default 10"
-		print " -stype type of subj, pep [0] or nucleotide [1,default]"
-		print " -ignorestop default no [0]"
-		print " -target for parse_file: the kind of score to parse -"
-		print "	      evalue[default],percentID or percentSIM"
-		print "	      for parse_table can be evalue, percentID, bit, or"
-		print "	      token no. separated by ','"
-		print " -desc parse matching subj from descriptor lines [1] or from"
-		print "	      alignment [0, default]"
-		print " -style the BLAST output (-m option) style, 1 (default) or 9"
-		print "	      In parse_align, [0, def] means no nt involved, [1] yes"
-		print " -name for renaming id within fasta file in [new][old] format"
-		print "       for match_list, it is simply a list of names, one column"
-		print " -wself include self match [1] or not [0, default]. For"
-		print "       get_reciprocal, means match from the same organisms will"
-		print "       kept [1] or not [0, default]. If 1, the sequence names"
-		print "       HAVE to have sp abbrv followed by an underscore"
-		print " -format output align part [0,default] or only the converted"
-		print "       match line [1]"
-		print " -feature The common feature for the query sequences in generat-"
-		print "       ing the blast output"
-		print " -fasta For get_qualified. This file is for comparing sizes of"
-		print "       cluster members, so make sure the relevant file is used"
-		print " -priority for get_qualified. Whether query sequence should take"
-		print "       precedance [1] or not [0,default]"
-		print " -verbose for parse_table, get qL,qR,sL,sR"
-		print " -lenT % length treshold. If this is specified, need BOTH fasta"
-		print "       and qors."
-		print " -qors for parse_table, based on query [0, default] or subj [1]"
-		print "       to apply lenT."
-		print " -matrix file with [seq_id][group_designation] or [taxa][seq_id]"
-		print "       for match_list2"
-		print " -target the target group"
-		print " -qtag for get_qualified, specify qualifying tags separated by"
-		print "       ','."
-		print " -unk  sequences of unknown group are query [1, default] or subj"
-		print "       [0]"
-		print " -wu   WU format BLAST [1] or not [0, default]"
-		print " -E    evalue threshold in -log(e), default -1"
-		print " -I    identity threshold in %. Default 95"
-		print " -L    length threshold, default 150."
-		print " -A    alignment length threshold, default 30"
-		print " -P    threshold for the proportion of match length vs sequence"
-		print "       length, default 0.9"
-		print " -Q    for match length vs. sequence length comparison, use both"
-		print "       query & subject [0], query only [1], or subject only [2]"
-		print " -fragT fragment %ID lower bound"
-		print " -chianT chain %ID lower bound"
-		print " -gapL max gap between fragment allowed"
-		print " -fastaQ query fasta file"
-		print " -fastaS subject fasta file"
-		print " -sp   2 letter species abbr. separated by ','"
-		print " -debug display debug string [1], default no [0]"
-		print ""
+		print ("\npython ParseBlast.py\n")
+		print (" -f  the code to excecute in ParseBlast:")
+		print ("     parse_db   - parse blast out stored in psql db")
+		print ("       REQUIRES: -c, -p, OPTIONAL: -T")
+		print ("     parse_file - parse blast output file")
+		print ("       REQUIRES: -blast")
+		print ("       OPTIONAL: -outbase, -T, -target")
+		print ("     parse_align- parse the alignment part from blast output")
+		print ("       REQUIRES: -blast, OPTIONAL: -T,-self,-format")
+		print ("       -style")
+		print ("     refine - parse the log file to get info on mutiple subject")
+		print ("       matches, REQUIRES: log")
+		print ("     parse_align2-parse the output file from defaut to m = 8")
+		print ("       REQUIRES: -blast")
+		print ("     parse_align3-get the blast output of a particular subj.")
+		print ("       need -blast, -target")
+		print ("     parse_align4-get the squence pairs out. NEED: blast")
+		print ("     get_qualified - this is an extension for parse_align which")
+		print ("       will filter modified log file and cluster the")
+		print ("       qualified entries. REQUIRES:log,fasta,qtag.OPTIONAL:")
+		print ("       priority")
+		print ("     get_qualified2- this is another extension for parse_align")
+		print ("       this will simply get the qualified subj for one entry. No")
+		print ("       clustering is done. REQUIRES: log, qtag")
+		print ("     get_qualified3- this is similar to get_qualified. But takes")
+		print ("       tabular blast output and 3 threshold settings. REQUIRES:")
+		print ("       blast, fasta, OPTIONAL: I,L,P")
+		print ("     get_qualified4- similar to get_qualified3 but no clustering")
+		print ("       REQUIRES: blast, fasta, OPTIONAL: E,I,L,P,Q")
+		print ("     gettop - get the top match of every query. NEED: blast")
+		print ("     parse_table- parse the tabular blast output")
+		print ("       REQUIRES: -blast, -target, OPTIONAL: -T, verbose, wself")
+		print ("     parse_table2 - parse tabular output based on idenity, length")
+		print ("       and/or evalue and generate [Q][count][subjs]. REQUIRES: ")
+		print ("       -blast, OPTIONAL: E,I,L")
+		print ("     parse_table3 - no storage involved, simply take blast out")
+		print ("       then apply threshold (T) to get -log(e). REQUIRES: blast,")
+		print ("       OPTIONAL: E,I")
+		print ("     parse_table4 - parse tabular output based on idenity, length")
+		print ("       and/or evalue. No modification to the lines. REQUIRES: ")
+		print ("       -blast, OPTIONAL: E,I,L")
+		print ("     parse_gap  - parse blast out and get gap info. NEED: blast")
+		print ("     threshold  - apply threshold to a blast output, NEED: blast")
+		print ("        T")
+		print ("     symmetrify - symmetrify, normalize, and homogenize scores.")
+		print ("       REQUIRES: -score. OPTIONAL: -cutoff,-outbase,-homog")
+		print ("     check_acc  - check and correct accessions" )
+		print ("       REQUIRES: -acc, -score")
+		print ("     check_missing - check if query OR subj is missing in the")
+		print ("       Blast output. NEED: blast, fasta, qors")
+		print ("     spc_score  - get score for non-paramegnetic clustering")
+		print ("       REQUIRES: -score. OPTIONAL: -per_id,-homog,-o")
+		print ("     mcl_score  - get score matrix for MCL")
+		print ("       REQUIRES: -score, OPTIONAL: -cutoff,-outbase,-homog")
+		print ("     nei_score  - get score matrix for Neighbor in Phylip")
+		print ("       REQUIRES: -score (modified by symmetrify)")
+		print ("     mega_score - get score matrix for MEGA")
+		print ("       REQUIRES: -score (modified by symmetrify)")
+		print ("     score_matrix - plain old matrix, NEED: score (symmetrified).")
+		print ("     select     - get scores for a subset of the sequences used")
+		print ("       in the original BLAST run")
+		print ("       REQUIRES: -list,-score")
+		print ("     extract_cds- get the subject sequence out")
+		print ("       REQUIRES: -blast. OPTIONAL: stype, T, wu, ignorestop")
+		print ("     get_subj   - get a non-redundant list of matching subj")
+		print ("       REQUIRES: -blast, OPTIONAL: desc, style, ttype, T")
+		print ("     index_names- convert sequence names into indices")
+		print ("       REQUIRES: -score")
+		print ("     rename     - Change id within the fasta file")
+		print ("       REQUIRES: -fasta, -name")
+		print ("     merge_match- merge the subj coords of overlapping entries")
+		print ("       in a blast output. REQUIRES: -blast, -feature")
+		print ("     get_reciprocal - get the reciprocal best matches")
+		print ("       REQUIRES: blast, OPTIONAL: target, fasta, T, wself, P")
+		print ("     match_list - get the top match for each query sequence and")
+		print ("       see if the top match is in a list of names. REQUIRES:")
+		print ("       -blast, -name")
+		print ("     match_list2 - based on the passed list file, output")
+		print ("       qualified entries. REQUIRES: -matrix, -blast")
+		print ("     log_vs_match - compare the log file against the list")
+		print ("       generated by match_list. New flags are inserted, see")
+		print ("       code doc for details. REQUIRES: -log, -list")
+		print ("     match_fam - get subj with match to members of a specified")
+		print ("       group of genes. REQUIRES: blast,matrix,target. OPTIONAL:")
+		print ("       unk")
+		print ("     delete - delete all scores involving any sequence in a list")
+		print ("       -blast, -list")
+		print ("     fix_blat - fix the modified blat -out=blast output by")
+		print ("       parse_align2, NEED: blast (blat-based)")
+		print ("     chain - link fragments together. NEED: blast,fastaQ,fastaS")
+		print ("       OPTIONAL: gapL,fragT,chainT,debug")
+		print ("     pairs - get unique pairs and IDs. NEED: blast")
+		print ("     get_sp - get scores of particular species, NEED: score,sp")
+		print ("     filterout - filter blastouput. NEED: blast,fasta. OPTIONAL:")
+		print ("       E,I,P,A")
+		print ("     xspecies - get only cross species matches. NEED: blast"  )
+		print ("     for_mega - do blast, parse score for mega. NEED: blast,")
+		print ("       fasta")
+		print ("     gettop - get top matches. NEED: blast")
+		print (" -c    configuration")
+		print (" -p    specify the block to excecute within config")
+		print (" -log  log file generated by parse_align")
+		print (" -blast blast output file, not required if -f parse_db")
+		print ("       for_mega, this is the blast program dir")
+		print (" -blast1 for get_reciprocal, first blast output in table format")
+		print (" -blast2 for get_reciprocal, second output in table format")
+		print (" -cluster cluster file")
+		print (" -score score file, required for mcl_score and check_acc")
+		print (" -list file with a list of seq_id")
+		print (" -cid  cluster id")
+		print (" -o    base name for output, default=[blast]")
+		print (" -acc  name for fasta file with correct accessions")	   
+		print (" -cutoff cutoff value for the matrix, default = 0")
+		print (" -ttype threshold type, identity[default], or evalue")
+		print (" -stype sequence type, protein [1] or nucleotide [0,default]")
+		print (" -T    -log(E) threshold for parsing blast scores, default 0")
+		print ("       or it will be compared against percentID or SIM, depend")
+		print ("       on which is specified in target.")
+		print ("       -> For extract_cds, this is the allowed gap size between")
+		print ("          stretches")
+		print ("       -> For get_subj, ID or E threshold, not transformed")
+		print ("       -> For get_reciprocal, length threshold")
+		print (" -outbase output base name")
+		print (" -H    homogenize by taking square [1],square root[2], or no")
+		print ("	      homogenization at all [0,default]. For e value, use 1.")
+		print (" -per_id  number of top scores to get for SPC, default 10")
+		print (" -stype type of subj, pep [0] or nucleotide [1,default]")
+		print (" -ignorestop default no [0]")
+		print (" -target for parse_file: the kind of score to parse -")
+		print ("	      evalue[default],percentID or percentSIM")
+		print ("	      for parse_table can be evalue, percentID, bit, or")
+		print ("	      token no. separated by ','")
+		print (" -desc parse matching subj from descriptor lines [1] or from")
+		print ("	      alignment [0, default]")
+		print (" -style the BLAST output (-m option) style, 1 (default) or 9")
+		print ("	      In parse_align, [0, def] means no nt involved, [1] yes")
+		print (" -name for renaming id within fasta file in [new][old] format")
+		print ("       for match_list, it is simply a list of names, one column")
+		print (" -wself include self match [1] or not [0, default]. For")
+		print ("       get_reciprocal, means match from the same organisms will")
+		print ("       kept [1] or not [0, default]. If 1, the sequence names")
+		print ("       HAVE to have sp abbrv followed by an underscore")
+		print (" -format output align part [0,default] or only the converted")
+		print ("       match line [1]")
+		print (" -feature The common feature for the query sequences in generat-")
+		print ("       ing the blast output")
+		print (" -fasta For get_qualified. This file is for comparing sizes of")
+		print ("       cluster members, so make sure the relevant file is used")
+		print (" -priority for get_qualified. Whether query sequence should take")
+		print ("       precedance [1] or not [0,default]")
+		print (" -verbose for parse_table, get qL,qR,sL,sR")
+		print (" -lenT % length treshold. If this is specified, need BOTH fasta")
+		print ("       and qors.")
+		print (" -qors for parse_table, based on query [0, default] or subj [1]")
+		print ("       to apply lenT.")
+		print (" -matrix file with [seq_id][group_designation] or [taxa][seq_id]")
+		print ("       for match_list2")
+		print (" -target the target group")
+		print (" -qtag for get_qualified, specify qualifying tags separated by")
+		print ("       ','.")
+		print (" -unk  sequences of unknown group are query [1, default] or subj")
+		print ("       [0]")
+		print (" -wu   WU format BLAST [1] or not [0, default]")
+		print (" -E    evalue threshold in -log(e), default -1")
+		print (" -I    identity threshold in %. Default 95")
+		print (" -L    length threshold, default 150.")
+		print (" -A    alignment length threshold, default 30")
+		print (" -P    threshold for the proportion of match length vs sequence")
+		print ("       length, default 0.9")
+		print (" -Q    for match length vs. sequence length comparison, use both")
+		print ("       query & subject [0], query only [1], or subject only [2]")
+		print (" -fragT fragment %ID lower bound")
+		print (" -chianT chain %ID lower bound")
+		print (" -gapL max gap between fragment allowed")
+		print (" -fastaQ query fasta file")
+		print (" -fastaS subject fasta file")
+		print (" -sp   2 letter species abbr. separated by ','")
+		print (" -debug display debug string [1], default no [0]")
+		print ("")
 		sys.exit(0)
 
 			
@@ -4458,14 +4449,14 @@ if __name__ == '__main__':
 		elif sys.argv[i] == "-debug":
 			debug       = sys.argv[i+1]
 		else:
-			print "Unknown parameter:",sys.argv[i]
+			print ("Unknown parameter:",sys.argv[i])
 			parse.help()
 			
 	if function == "parse_db":
 		if configFile == "" or operation == "":
-			print "\nNeed to define config file and operation\n"
+			print ("\nNeed to define config file and operation\n")
 			
-			print " -help for help"
+			print (" -help for help")
 			sys.exit(0)
 		dbtask = DatabaseOp
 		config = dbtask.configConnect(configFile,operation)
@@ -4473,160 +4464,160 @@ if __name__ == '__main__':
 		parse.parse_blast_db(outbase,T)
 	elif function == "for_mega":
 		if blast == "" or fasta == "":
-			print "\nNeed to specify the blast program dir and fasta\n"	  
-			print " -help for help"
+			print ("\nNeed to specify the blast program dir and fasta\n")	  
+			print (" -help for help")
 			sys.exit(0)		    
 		parse.for_mega(blast,fasta)
 	elif function == "xspecies":		
 		if blast == "":
-			print "\nNeed to specify the blast output file to be parsed\n"	  
-			print " -help for help"
+			print ("\nNeed to specify the blast output file to be parsed\n"	)  
+			print (" -help for help")
 			sys.exit(0)		    
 		parse.xspecies(blast)
 	elif function == "parse_file":		
 		if blast == "":
-			print "\nNeed to specify the blast output file to be parsed\n"	  
-			print " -help for help"
+			print ("\nNeed to specify the blast output file to be parsed\n"	)  
+			print (" -help for help")
 			sys.exit(0)		    
 		parse.parse_blast_file(blast,T,target)
 	elif function == "parse_align":		
 		if blast == "":
-			print "\nNeed to specify the blast output file to be parsed\n"	  
-			print " -help for help"
+			print ("\nNeed to specify the blast output file to be parsed\n")	  
+			print (" -help for help")
 			sys.exit(0)	    
 		parse.parse_align(blast,T,wself,format,style)
 
 	elif function == "parse_align4":		
 		if blast == "":
-			print "\nNeed to specify the blast output\n"	  
-			print " -help for help"
+			print ("\nNeed to specify the blast output\n")	  
+			print (" -help for help")
 			sys.exit(0)	    
 		parse.parse_align4(blast)
 
 	elif function == "refine":		
 		if log == "":
-			print "\nNeed log file.\n"	  
-			print " -help for help"
+			print ("\nNeed log file.\n")	  
+			print (" -help for help")
 			sys.exit(0)	    
 		parse.refine(log)
 	elif function == "parse_align2":		
 		if blast == "":
-			print "\nNeed to specify the blast output file to be parsed\n"	  
-			print " -help for help"
+			print ("\nNeed to specify the blast output file to be parsed\n")	  
+			print (" -help for help")
 			sys.exit(0)	    
 		parse.parse_align2(blast)
 	elif function == "parse_align3":		
 		if blast == "" or target == "":
-			print "\nNeed the blast output and target id\n"	  
-			print " -help for help"
+			print ("\nNeed the blast output and target id\n")	  
+			print (" -help for help")
 			sys.exit(0)	    
 		parse.parse_align3(blast,target)
 	elif function == "get_qualified":		
 		if log == "" or fasta == "" or qtag == "":
-			print "\nNeed .log, fasta files and qtag\n"
-			print " -help for help"
+			print ("\nNeed .log, fasta files and qtag\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_qualified(log,fasta,qtag,priority)
 	elif function == "get_qualified2":		
 		if log == "" or qtag == "":
-			print "\nNeed parse_align output and qtag\n"
-			print " -help for help"
+			print ("\nNeed parse_align output and qtag\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_qualified2(log,qtag)
 	elif function == "get_qualified3":		
 		if blast == "" or fasta == "":
-			print "\nNeed blast output and fasta\n"
-			print " -help for help"
+			print ("\nNeed blast output and fasta\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_qualified3(blast,fasta,I,L,P)
 	elif function == "get_qualified4":		
 		if blast == "" or fasta == "":
-			print "\nNeed blast output and fasta\n"
-			print " -help for help"
+			print ("\nNeed blast output and fasta\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_qualified4(blast,fasta,E,I,L,P,Q)
 	elif function == "parse_table":		
 		if blast == "" or target == "":
-			print "\nNeed the blast output and target to be parsed\n"	       
-			print " -help for help"
+			print ("\nNeed the blast output and target to be parsed\n")	       
+			print (" -help for help")
 			sys.exit(0)	    
 		parse.parse_table(blast,target,T,verbose,wself,lenT,fasta,qors)
 	elif function == "parse_table2":
 		if blast == "":
-			print "\nNeed the blast output\n"	       
-			print " -help for help"
+			print ("\nNeed the blast output\n")	       
+			print (" -help for help")
 			sys.exit(0)	    
 		parse.parse_table2(blast,E,I,L)
 	elif function == "parse_table3":		
 		if blast == "":
-			print "\nNeed the blast output\n"	       
-			print " -help for help"
+			print ("\nNeed the blast output\n")	       
+			print (" -help for help")
 			sys.exit(0)	    
 		parse.parse_table3(blast,E,I)
 	elif function == "parse_table4":		
 		if "" in [blast,E,I,L]:
-			print "\nNeed the blast, E, I, L\n"	       
-			print " -help for help"
+			print ("\nNeed the blast, E, I, L\n"	)       
+			print (" -help for help")
 			sys.exit(0)	    
 		parse.parse_table4(blast,E,I,L)
 	elif function == "check_acc":		
 		if score == "" or accfile == "":
-			print "\nNeed fasta file with correct acc and the parsed file\n"
-			print " -help for help"
+			print ("\nNeed fasta file with correct acc and the parsed file\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.check_acc(accfile,score)
 	elif function == "check_missing":		
 		if blast == "" or fasta == "" or qors == "":
-			print "\nNeed fasta, blast, and qors\n"
-			print " -help for help"
+			print ("\nNeed fasta, blast, and qors\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.check_missing(fasta,blast,qors)
 	elif function == "symmetrify":		
 		if score == "":
-			print "\nNeed score file\n"
-			print " -help for help"
+			print ("\nNeed score file\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.symmetrify(score,outbase,cutoff,homogenize)
 	elif function == "spc_score":		
 		if score == "":
-			print "\nNeed blast ouput, cluster file, and cluster id\n"
-			print " -help for help"
+			print ("\nNeed blast ouput, cluster file, and cluster id\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_scores_for_spc(score,outbase,per_id,homogenize)
 	elif function == "mcl_score":
 		if score == "":
-			print "\nNeed score file\n"
-			print " -help for help"
+			print ("\nNeed score file\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_scores_for_mcl(score,outbase,cutoff,homogenize)
 	elif function == "nei_score":		
 		if score == "":
-			print "\nNeed symmetrified score file\n"
-			print " -help for help"
+			print ("\nNeed symmetrified score file\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_scores_for_neighbor(score)
 	elif function == "mega_score":		
 		if score == "":
-			print "\nNeed symmetrified score file\n"
-			print " -help for help"
+			print ("\nNeed symmetrified score file\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.mega_score(score)
 	elif function == "score_matrix":		
 		if score == "":
-			print "\nNeed symmetrified score file\n"
-			print " -help for help"
+			print ("\nNeed symmetrified score file\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.score_matrix(score)
 	elif function == "select":
 		if score == "" or list == "":
-			print "\nNeed score file and seq_id list\n"
-			print " -help for help"
+			print ("\nNeed score file and seq_id list\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_selected(list,score)
 	elif function == "extract_cds":		
 		if blast == "":
-			print "\nNeed blast output\n"
-			print " -help for help"
+			print ("\nNeed blast output\n")
+			print (" -help for help")
 			sys.exit(0)
 		if T == 1.0:
 			T = 0
@@ -4634,136 +4625,136 @@ if __name__ == '__main__':
 	elif function == "get_subj":
 		
 		if blast == "":
-			print "\nNeed blast output\n"
-			print " -help for help"
+			print ("\nNeed blast output\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_subj(blast,desc,style,ttype,T)
 
 	elif function == "index_names":
 		
 		if score == "":
-			print "\nNeed score file\n"
-			print " -help for help"
+			print ("\nNeed score file\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.index_names(score)
 
 	elif function == "rename":
 		
 		if fasta == "" or name == "":
-			print "\nNeed fasta and name files\n"
-			print " -help for help"
+			print ("\nNeed fasta and name files\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.rename(fasta,name)	
 
 	elif function == "merge_match":
 		
 		if blast == "" or feature == "":
-			print "\nNeed blast output and feature designation\n"
-			print " -help for help"
+			print ("\nNeed blast output and feature designation\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.merge_match(blast,feature)	
 
 	elif function == "get_reciprocal":
 		
 		if blast == "":
-			print "\nNeed blast output\n"
-			print " -help for help"
+			print ("\nNeed blast output\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_reciprocal(blast,target,fasta,P,wself)	
 
 	elif function == "match_list":
 		
 		if blast == "" or name == "":
-			print "\nNeed two blast output and names\n"
-			print " -help for help"
+			print ("\nNeed two blast output and names\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.match_list(blast,name)	
 
 	elif function == "match_list2":
 		
 		if blast == "" or matrix == "":
-			print "\nNeed two blast output and taxa-name matrix\n"
-			print " -help for help"
+			print ("\nNeed two blast output and taxa-name matrix\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.match_list2(blast,matrix)	
 
 	elif function == "log_vs_match":
 		
 		if log == "" or list == "":
-			print "\nNeed log file and match list\n"
-			print " -help for help"
+			print ("\nNeed log file and match list\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.log_vs_match(log,list)
 
 	elif function == "match_fam":
 		
 		if blast == "" or matrix == "" or target == "":
-			print "\nNeed blast output, matrix file, and target groupt\n"
-			print " -help for help"
+			print ("\nNeed blast output, matrix file, and target groupt\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.match_fam(blast,matrix,target,unk)	
 	elif function == "delete":
 		
 		if blast == "" or list == "":
-			print "\nNeed blast output and a list of names\n"
-			print " -help for help"
+			print ("\nNeed blast output and a list of names\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.delete(blast,list)	
 	elif function == "threshold":
 		
 		if blast == "" or T == "":
-			print "\nNeed blast output and threshold\n"
-			print " -help for help"
+			print ("\nNeed blast output and threshold\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.threshold(blast,T)	
 	elif function == "parse_gap":
 		
 		if blast == "":
-			print "\nNeed blast output\n"
-			print " -help for help"
+			print ("\nNeed blast output\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.parse_gap(blast)
 	elif function == "fix_blat":		
 		if blast == "":
-			print "\nNeed blast output\n"
-			print " -help for help"
+			print ("\nNeed blast output\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.fix_blat(blast)
 	elif function == "chain":		
 		if "" in [blast,fastaQ,fastaS]:
-			print "\nNeed blast output, fastaQ, fastaS\n"
-			print " -help for help"
+			print ("\nNeed blast output, fastaQ, fastaS\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.chain(blast,fastaQ,fastaS,gapL,fragT,chainT,debug)
 	elif function == "pairs":		
 		if blast == "":
-			print "\nNeed blast output\n"
-			print " -help for help"
+			print ("\nNeed blast output\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.pairs(blast)
 	elif function == "get_sp":
 		if score == "" or sp == "":
-			print "\nNeed score file and species\n"
-			print " -help for help"
+			print ("\nNeed score file and species\n")
+			print (" -help for help")
 			sys.exit(0)
 		parse.get_sp(score,sp)
 	elif function == "filterout":
 		if "" in [blast,fasta]:
-			print "\nNeed to specify blast and fasta\n"	  
-			print " -help for help"
+			print ("\nNeed to specify blast and fasta\n")	  
+			print (" -help for help")
 			sys.exit(0)		    
 		parse.filterout(blast,fasta,E,I,P,A)
 	# 8/10,07
 	elif function == "gettop":
 		if blast == "":
-			print "\nNeed blast output"
-			print " -help for help"
+			print ("\nNeed blast output")
+			print (" -help for help")
 			sys.exit(0)		    
 		parse.gettop(blast)		
 	else:
-		print "\nNo such function defined: '%s'\n" % function
+		print ("\nNo such function defined: '%s'\n" % function)
 		
-		print " -help for help"
+		print (" -help for help")
 		sys.exit(0)
 
 '''
