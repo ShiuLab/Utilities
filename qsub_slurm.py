@@ -4,7 +4,7 @@ from random import randint
 
 class qsub_hpc:
 
-    def write_sh(self,cmd,jobname,sidx,p,h,m,mem,email,wd,mo,pre,post,a,inta,nnode,ngpu,array):
+    def write_sh(self,cmd,jobname,sidx,p,h,m,mem,email,wd,mo,pre,post,a,inta,nnode,ngpu,array,devnode):
         # Write header
         oup = open("%s%i.sb" % (jobname,sidx),"w")
         oup.write('#!/bin/bash')
@@ -23,6 +23,8 @@ class qsub_hpc:
             oup.write("srun --pty /bin/bash")
         if array != "":
             oup.write("#SBATCH --array=%s\n" % array)
+        if devnode != "":
+            oup.write("#SBATCH -C %s\n" % devnode)
         
         oup.write('\n########## Command Lines to Run ##########\n\n')
 
@@ -47,7 +49,7 @@ class qsub_hpc:
             oup.write("%s\n" % "".join(open(post).readlines()))
         oup.close()
     
-    def submit(self,jobs,sidx,wtime,mem,jobname,p,email,logdir,a,inta,nnode,ngpu,array,wdir="",
+    def submit(self,jobs,sidx,wtime,mem,jobname,p,email,logdir,a,inta,nnode,ngpu,array,devnode,wdir="",
               module="",pre="",post=""):
         runtype = 0
         if type(jobs) != list:
@@ -80,13 +82,13 @@ class qsub_hpc:
         for i in jobs:
             if i.strip() != '' and i[0] != "#":
                 print("  job %i" % sidx)
-                self.write_sh(i,jobname,sidx,p,h,m,mem,email,wdir,mo,pre,post,a,inta,nnode,ngpu,array)
+                self.write_sh(i,jobname,sidx,p,h,m,mem,email,wdir,mo,pre,post,a,inta,nnode,ngpu,array,devnode)
                 os.system("chmod 755 %s%i.sb" % (jobname,sidx))
                 os.system("sbatch %s%s%i.sb"    % (logdir,jobname,sidx))  
                 sidx += 1
     
     def queue(self,jcommand,stime,nsub,juser,jrange,wtime,mem,jobname,p,email,
-            logdir,a,inta,nnode,ngpu,array,wdir="",module="",pre="",post=""):
+            logdir,a,inta,nnode,ngpu,array,devnode,wdir="",module="",pre="",post=""):
         jdict = {}
         inp = open(jcommand)
         jobs = inp.readlines()
@@ -109,7 +111,7 @@ class qsub_hpc:
             inp = open("TMP.%i" % rint)
             inl = inp.readlines()
             if len(inl) != 0:
-                currj = len(inl)-5
+                currj = len(inl)-2
             else:
                 currj = 0
             inp.close()
@@ -118,10 +120,16 @@ class qsub_hpc:
             # Submit more jobs so there is always nsub number of jobs in quene
             #####
             if currj < nsub:
-                jseg = jobs[j:j+(nsub-currj)]
+                if array != '':
+                    array_start, array_stop = array.strip().split('-')
+                    array_size = int(array_stop) - int(array_start) + 1
+                    jseg = jobs[j:j+int((nsub-currj) / array_size)]
+                else:
+                    jseg = jobs[j:j+(nsub-currj)]
+
                 oup.write("submit %i\t" % len(jseg))
                 print("current %i, submit %i\n" % (currj,len(jseg)))
-                self.submit(jseg,j+1,wtime,mem,jobname,p,email,logdir,a,inta,nnode,ngpu,array,wdir,module)
+                self.submit(jseg,j+1,wtime,mem,jobname,p,email,logdir,a,inta,nnode,ngpu,array,devnode,wdir,module)
                 j += len(jseg)
 
             else:
@@ -360,6 +368,7 @@ class qsub_hpc:
         print("    k - a list of job ids to kill")
         print("    A - name of buy-in node")
         print("    array - Range if running an array job (i.e. 1-10)")
+        print("    devnode - Specify which nodes to submit to (i.e.: intel16|intel18)")
         print("    i - Run in interactive mode, default = '' s")
         print("")
         sys.exit(0)
@@ -367,7 +376,7 @@ class qsub_hpc:
 if __name__ == '__main__':
 
     qsub = qsub_hpc()
-    f = c = u = e = wd = k = mo = pre = post = a = array = inta = ""
+    f = c = u = e = wd = k = mo = pre = post = a = array = inta = devnode = ""
     s = n = 10
     w = 600
     m = o = p = nnode = 1
@@ -420,6 +429,8 @@ if __name__ == '__main__':
             inta = sys.argv[i+1]
         elif sys.argv[i] == "-array":
             array = sys.argv[i+1]
+        elif sys.argv[i] == "-devnode":
+            devnode = sys.argv[i+1]
         else:
             print("UNKNOWN FLAG:",sys.argv[i])
             print("Do -h to get help.")
@@ -429,12 +440,12 @@ if __name__ == '__main__':
         if "" in [c]:
             print("\nNeed cmd line file, user name\n")
             qsub.help()
-        qsub.submit(c,0,w,m,J,p,e,o,a,inta,nnode,ngpu,array,wd,mo,pre,post)
+        qsub.submit(c,0,w,m,J,p,e,o,a,inta,nnode,ngpu,array,devnode,wd,mo,pre,post)
     elif f == "queue":
         if "" in [c,u]:
             print("\nNeed cmd line file, user name\n")
             qsub.help()
-        qsub.queue(c,s,n,u,r,w,m,J,p,e,o,a,inta,nnode,ngpu,array,wd,mo,pre,post)
+        qsub.queue(c,s,n,u,r,w,m,J,p,e,o,a,inta,nnode,ngpu,array,devnode,wd,mo,pre,post)
 
     elif f == "qdel":
         if r == "" and u == "":
