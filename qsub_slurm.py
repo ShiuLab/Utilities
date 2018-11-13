@@ -106,8 +106,8 @@ class qsub_hpc:
             # Check number of jobs in quene so far
             #####
             rint = randint(1,1e6)
-            os.system("squeue -l -u %s > TMP.%i" % (juser,rint))
-            time.sleep(2)
+            os.system("squeue -l -r -u %s > TMP.%i" % (juser,rint))
+            time.sleep(10)
             inp = open("TMP.%i" % rint)
             inl = inp.readlines()
             if len(inl) != 0:
@@ -123,14 +123,19 @@ class qsub_hpc:
                 if array != '':
                     array_start, array_stop = array.strip().split('-')
                     array_size = int(array_stop) - int(array_start) + 1
-                    jseg = jobs[j:j+int((nsub-currj) / array_size)]
+                    if nsub - currj > array_size:
+                        jseg = jobs[j:j+int((nsub-currj) / array_size)]
+                        oup.write("submit %i\t" % len(jseg))
+                        print("current %i, submit %i\n" % (currj,len(jseg)))
+                        self.submit(jseg,j+1,wtime,mem,jobname,p,email,logdir,a,inta,nnode,ngpu,array,devnode,wdir,module)
+                        j += len(jseg)
+
                 else:
                     jseg = jobs[j:j+(nsub-currj)]
-
-                oup.write("submit %i\t" % len(jseg))
-                print("current %i, submit %i\n" % (currj,len(jseg)))
-                self.submit(jseg,j+1,wtime,mem,jobname,p,email,logdir,a,inta,nnode,ngpu,array,devnode,wdir,module)
-                j += len(jseg)
+                    oup.write("submit %i\t" % len(jseg))
+                    print("current %i, submit %i\n" % (currj,len(jseg)))
+                    self.submit(jseg,j+1,wtime,mem,jobname,p,email,logdir,a,inta,nnode,ngpu,array,devnode,wdir,module)
+                    j += len(jseg)
 
             else:
                 oup.write("waiting\t")
@@ -441,6 +446,7 @@ if __name__ == '__main__':
             print("\nNeed cmd line file, user name\n")
             qsub.help()
         qsub.submit(c,0,w,m,J,p,e,o,a,inta,nnode,ngpu,array,devnode,wd,mo,pre,post)
+    
     elif f == "queue":
         if "" in [c,u]:
             print("\nNeed cmd line file, user name\n")
