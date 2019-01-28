@@ -264,7 +264,6 @@ class fasta_manager:
 							else:
 								if ori == -1:
 									S = trans.rc(S)
-								
 								# If there is 4th column, use them as sequence IDs.
 								if len(L) == 4 and seqid:
 									oup.write(">%s\n%s\n" % (L[3],S))
@@ -485,8 +484,7 @@ class fasta_manager:
 					if inl == "":
 						break
 				seq = "".join(slist)
-				
-				if fdict.has_key(idx):
+				if idx in fdict:
 					if verbose:
 						print ("Redundant_id:",idx,)
 					if dflag:
@@ -684,30 +682,31 @@ class fasta_manager:
 		oup = open(gff+".coord","w")
 		inl = inp.readline()
 		while inl != "":
-			T = inl.strip().split("\t") # tokens
-			C = T[0]					# chr
-			if T[6] == "+":				# orientation
-				L = T[3]				# left coord
-				R = T[4]				# right coord
-			else:
-				L = T[4]
-				R = T[3]
-			N = ""						# sequence name
-			n = T[-1].split(";")
-			if "Name" in T[-1]:			# has Name tag, # refers to last item in list
-				for j in n:
-					if "Name" in j:
-						N = j.split("=")[1]
-						break
-			elif T[-1] != "":			# no name tag but not empty, use 1st
-				N = n[0].split("=")[1]
-			else:
-				print ("No desc:",T)
-			
-			if N != "":
-				oup.write("%s\t%s\t%s\t%s\n" % (C,L,R,N))
+			if not inl.startswith('#'):
+				T = inl.strip().split("\t") # tokens
+				C = T[0]					# chr
+				if T[6] == "+":				# orientation
+					L = T[3]				# left coord
+					R = T[4]				# right coord
+				else:
+					L = T[4]
+					R = T[3]
+				N = ""						# sequence name
+				n = T[-1].split(";")
+				if "Name" in T[-1]:			# has Name tag, # refers to last item in list
+					for j in n:
+						if "Name" in j:
+							N = j.split("=")[1]
+							break
+				elif T[-1] != "":			# no name tag but not empty, use 1st
+					N = n[0].split("=")[1]
+				else:
+					print ("No desc:",T)
 				
-			inl = inp.readline()
+				if N != "":
+					oup.write("%s\t%s\t%s\t%s\n" % (C,L,R,N))
+					
+				inl = inp.readline()
 			
 		print ("Done!")
 	def clear_space(self,string): #returns tab-delimited
