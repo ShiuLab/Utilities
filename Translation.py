@@ -1,7 +1,7 @@
 
 
 import FastaManager,sys,os,ParseBlast,FileUtility,BlastUtility,string,time
-from string import *
+#from string import *
 from bisect import bisect
 
 class translate:
@@ -997,7 +997,11 @@ class translate:
 
 	
 	def complement(self,nt):
-		comp = nt.translate(maketrans("AGCTagct","TCGAtcga"))
+		try: # Only works in Python 2
+			comp = nt.translate(maketrans("AGCTagct","TCGAtcga"))
+		except: # Works for Python 3
+			transcode = str.maketrans("AGCTagct","TCGAtcga")
+			comp = nt.translate(transcode)
 		return comp
 		
 
