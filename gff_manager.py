@@ -11,10 +11,14 @@ Functions, -f:
 	merge_depth	Count the number of features clustered in each line of a merged
 		GFF file
 			output: [gff_file].depth
+	filter	Remove lines where gene and/or motif not in list provided.
+		req: 	-i (input gff file)
+		opt:	-genes and/or -str
+			output: [gff_file].filt
 	length	Return the total length and length of features covered in the
 		GFF file
 			output: print to screen
-	lengths	Print the ID and length of features in a GFF file. In clude a
+	lengths	Print the ID and length of features in a GFF file. Include a
 		-str flag to only include the lengths of that feature
 			opt: -str,-com
 			output: print to screen
@@ -100,7 +104,7 @@ def print_help():
 	print(__doc__)
 
 def set_defaults_and_parse_args(argv_l):
-	function = input_file = char_str = gff2 = src = typ = intgr = key = o_str = None
+	function = input_file = char_str = gff2 = src = typ = intgr = key = genes = o_str = None
 	cm_chr = "#"
 	import sys
 	try:
@@ -121,9 +125,11 @@ def set_defaults_and_parse_args(argv_l):
 				intgr = sys.argv[i+1]
 			elif sys.argv[i] == "-key":
 				key = sys.argv[i+1]	
+			elif sys.argv[i] == "-genes":
+				genes = sys.argv[i+1]	
 			elif sys.argv[i] == "-out_str":
 				o_str = sys.argv[i+1]
-		return input_file,function,char_str,gff2,cm_chr,src,typ,intgr,key,o_str
+		return input_file,function,char_str,gff2,cm_chr,src,typ,intgr,key,genes,o_str
 	except:
 		print_help()
 		print("Error reading arguments!")
@@ -525,6 +531,52 @@ def function_mergeGFF(fl):
 				# d_len[feat] += line_len
 	# inp.close()
 	# return d_len,all_len
+
+def function_filter(gff,chr_str,genes):
+	import os.path
+	if chr_str == None:
+		chr_str = 'pass'
+	if genes == None:
+		genes = 'pass'
+	
+	# Read in genes / strings to keep
+	if os.path.isfile(genes):
+		with open(genes) as gene_file:
+			gene_list = gene_file.read().strip().splitlines()
+	else:
+		gene_list = [genes]
+	print('Number of genes to keep: %i' % len(gene_list))
+
+	if os.path.isfile(chr_str):
+		with open(chr_str) as str_file:
+			str_list = str_file.read().strip().splitlines()
+	else:
+		str_list = [chr_str]
+	print('Number of genes to keep: %i' % len(str_list))
+
+	count_all = 0
+	count_keep = 0
+	out = open(gff+'_filt', 'w')
+
+	with open(gff) as gff_file:
+	  for gff_line in gff_file:
+	    count_all += 1
+	    gff_split = gff_line.strip().split('\t')
+
+	    gene = gff_split[1]
+	    string = gff_split[2]
+	    
+	    if string in str_list or 'pass' in str_list:
+	      if gene in gene_list or 'pass' in gene_list:
+	        count_keep +=1
+	        out.write(gff_line)
+
+	    if count_all%10000 ==0:
+	      print('Finished: %i' % count_all)
+
+	print('Kept %i out of %i lines from the gff file' % (count_keep, count_all))
+
+
 
 def function_length(gff):
 	# d_ln,ln = featLenDict_and_fullLen(gff)
@@ -991,7 +1043,7 @@ def main():
 		print_help()
 		sys.exit()
 	
-	infile,func,chr_str,gff2_file,com_char,inp_src,inp_typ,inp_int,key,out_str = set_defaults_and_parse_args(sys.argv)
+	infile,func,chr_str,gff2_file,com_char,inp_src,inp_typ,inp_int,key,genes,out_str = set_defaults_and_parse_args(sys.argv)
 	
 	if func == None or infile == None:
 		print_help()
@@ -1006,6 +1058,10 @@ def main():
 		function_sortGFF(infile,com_char,chr_str)
 		print("Merging GFF file")
 		function_mergeGFF(infile+".sort")
+		print("Done!")
+	elif func == "filter":
+		print("Filtering GFF file")
+		function_filter(infile,chr_str,genes)
 		print("Done!")
 	elif func == "length":
 		function_length(infile)
