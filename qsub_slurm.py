@@ -373,7 +373,7 @@ class qsub_hpc:
         print("    k - a list of job ids to kill")
         print("    A - name of buy-in node")
         print("    array - Range if running an array job (i.e. 1-10)")
-        print("    devnode - Specify which nodes to submit to (i.e.: intel16|intel18)")
+        print("    devnode - Specify which nodes to submit to (i.e.: [intel16|intel18)]")
         print("    i - Run in interactive mode, default = '' s")
         print("")
         sys.exit(0)
