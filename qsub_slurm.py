@@ -4,7 +4,7 @@ from random import randint
 
 class qsub_hpc:
 
-    def write_sh(self,cmd,jobname,sidx,p,h,m,mem,email,wd,mo,pre,post,a,inta,nnode,ngpu,array):
+    def write_sh(self,cmd,jobname,sidx,p,h,m,mem,email,wd,mo,pre,post,a,inta,nnode,ngpu,array,constrain,mop):
         # Write header
         oup = open("%s%i.sb" % (jobname,sidx),"w")
         oup.write('#!/bin/bash')
@@ -23,13 +23,23 @@ class qsub_hpc:
             oup.write("srun --pty /bin/bash")
         if array != "":
             oup.write("#SBATCH --array=%s\n" % array)
-        
+        if constrain != "":
+            constrain = constrain.split(",")
+            new=[]
+            for i in constrain:
+                s= i.replace("dev-", "")
+                new.append(s)
+            constrain1 = "|".join(new)
+            oup.write("#SBATCH --constraint=[%s]\n" % constrain1)
         oup.write('\n########## Command Lines to Run ##########\n\n')
 
         # Set working directory
         if wd != "":
             oup.write("cd %s\n" % wd)
-
+        
+        #module purge
+        if mop == 'yes':
+            oup.write("module purge\n")
         # Load modules
         if mo != []:
             for j in mo:
@@ -80,7 +90,7 @@ class qsub_hpc:
         for i in jobs:
             if i.strip() != '' and i[0] != "#":
                 print("  job %i" % sidx)
-                self.write_sh(i,jobname,sidx,p,h,m,mem,email,wdir,mo,pre,post,a,inta,nnode,ngpu,array)
+                self.write_sh(i,jobname,sidx,p,h,m,mem,email,wdir,mo,pre,post,a,inta,nnode,ngpu,array,constrain,mop)
                 os.system("chmod 755 %s%i.sb" % (jobname,sidx))
                 os.system("sbatch %s%s%i.sb"    % (logdir,jobname,sidx))  
                 sidx += 1
@@ -361,6 +371,8 @@ class qsub_hpc:
         print("    A - name of buy-in node")
         print("    array - Range if running an array job (i.e. 1-10)")
         print("    i - Run in interactive mode, default = '' s")
+        print("    mop - 'yes' if you want modules to be purged before loading new modules")
+        print("    constrain - add dev-node that you want to constrain the run to")
         print("")
         sys.exit(0)
 
@@ -374,6 +386,8 @@ if __name__ == '__main__':
     ngpu = 0
     r = "*"
     J = "job"
+    mop = "no"
+    constrain = ""
         
     for i in range(1,len(sys.argv),2):
         if sys.argv[i] == "-f":
@@ -420,6 +434,10 @@ if __name__ == '__main__':
             inta = sys.argv[i+1]
         elif sys.argv[i] == "-array":
             array = sys.argv[i+1]
+        elif sys.argv[i] == "-mop":
+            mop = sys.argv[i+1]
+        elif sys.argv[i] == "-constrain":
+            constrain = sys.argv[i+1]
         else:
             print("UNKNOWN FLAG:",sys.argv[i])
             print("Do -h to get help.")
