@@ -229,7 +229,14 @@ class fasta_manager:
 		seq = self.fasta_to_dict(fasta,0)
 		# fasta_to_dict got rid of "\n" already
 	
-		#print seq.keys()
+		print (seq.keys())
+		new_dict={}
+		for i in seq.keys():
+		    newseq= i.strip().split(" ")[0]
+		    print (newseq)
+		    value= seq[i]
+		    new_dict[newseq]=value
+		
 	
 		c = 0 # count total
 		m = 0 # count not in fasta
@@ -245,9 +252,10 @@ class fasta_manager:
 				c  += 1
 				L  = inl.strip().split("\t")
 				seqName = L[0]	# Sequnece name
-				if seqName in seq:
+				if seqName in new_dict:
 					if len(L) >= 2:
 						# L = [name, L, R], some may have 4th col which is IDs to be given.
+						
 						if L[1].find(",") == -1:
 							# Deal with reverse ori
 							ori= 1; cL = int(L[1]); cR = int(L[2])
@@ -255,9 +263,9 @@ class fasta_manager:
 								ori = -1
 							# Get sequence
 							if ori == -1:
-								S = seq[seqName][cR-1:cL]
+								S = new_dict[seqName][cR-1:cL]
 							else:
-								S = seq[seqName][cL-1:cR]
+								S = new_dict[seqName][cL-1:cR]
 	
 							if S == "":
 								print ("ERR COORD: %s,[%i,%i]" % (seqName,cL,cR))
@@ -272,6 +280,7 @@ class fasta_manager:
 									oup.write(">%s|%i-%i\n%s\n" %	(seqName,cL,cR,S))
 						# name <\t> "L1,R1,L2,R2..." <\t> whatever
 						elif L[1].find(",") != -1:
+							genename= L[2]
 							coordList = L[1].split(",")
 							S = ""
 							# Set orientation, only consider the first pair
@@ -284,10 +293,10 @@ class fasta_manager:
 								if ori == -1:
 									cL = int(coordList[j+1])
 									cR = int(coordList[j])
-									S = seq[seqName][cL-1:cR] + S
+									S = new_dict[seqName][cL-1:cR] + S
 								else:
-									S += seq[seqName][cL-1:cR]
-							oup.write(">%s|%s\n%s\n" % (seqName,"-".join(coordList),S))
+									S += new_dict[seqName][cL-1:cR]
+							oup.write(">%s %s|%s\n%s\n" % (genename, seqName,"-".join(coordList),S))
 						else:
 							print ("Unknown cooord format:",L)
 							print ("Quit!")
@@ -486,7 +495,8 @@ class fasta_manager:
 						break
 				seq = "".join(slist)
 				
-				if fdict.has_key(idx):
+				if idx in fdict.keys():
+				#if fdict.has_key(idx):
 					if verbose:
 						print ("Redundant_id:",idx,)
 					if dflag:
@@ -520,6 +530,7 @@ class fasta_manager:
 		if verbose:
 			print ("Total %i sequences, %i with non-redun names" % (c,N))
 		
+		#print(fdict)
 		return fdict
 
 	#
@@ -684,32 +695,96 @@ class fasta_manager:
 		oup = open(gff+".coord","w")
 		inl = inp.readline()
 		while inl != "":
+			#print (inl)
 			T = inl.strip().split("\t") # tokens
-			C = T[0]					# chr
-			if T[6] == "+":				# orientation
-				L = T[3]				# left coord
-				R = T[4]				# right coord
-			else:
-				L = T[4]
-				R = T[3]
-			N = ""						# sequence name
-			n = T[-1].split(";")
-			if "Name" in T[-1]:			# has Name tag, # refers to last item in list
-				for j in n:
-					if "Name" in j:
-						N = j.split("=")[1]
-						break
-			elif T[-1] != "":			# no name tag but not empty, use 1st
-				N = n[0].split("=")[1]
-			else:
-				print ("No desc:",T)
+			if len(T) > 6:
+			    #print (T)
+			    C = T[0]					# chr
+			    if T[6] == "+":				# orientation
+			        L = T[3]				# left coord
+			        R = T[4]				# right coord
+			    else:
+			        L = T[4]
+			        R = T[3]
+			    N = ""						# sequence name
+			    n = T[-1].split(";")
+			    if "Name" in T[-1]:			# has Name tag, # refers to last item in list
+			        for j in n:
+			            if "Name" in j:
+			                N = j.split("=")[1]
+			                break
+			            elif T[-1] != "":			# no name tag but not empty, use 1st
+			                N = n[0].split("=")[1]
+			            else:
+			                print ("No desc:",T)
+			    if N != "":
+			        oup.write("%s\t%s\t%s\t%s\n" % (C,L,R,N))
 			
-			if N != "":
-				oup.write("%s\t%s\t%s\t%s\n" % (C,L,R,N))
-				
+			else:
+			    print(T, "line not used")
 			inl = inp.readline()
 			
 		print ("Done!")
+#
+	# Convert GFF to coord file for 1000bp upstream of genes
+	#
+	def gff_prom_to_coord2(self,gff):
+		inp = open(gff)
+		oup = open(gff+".coord","w")
+		inl = inp.readline()
+		tmp_list=[]
+		count= 0
+		while inl != "":
+			#print (inl)
+			T = inl.strip().split("\t") # tokens
+			if len(T) > 6:
+			    C = T[0]					# chr
+			    #print (T[2])
+			    if T[2] == 'gene' and count== 0:
+			        count= count+1
+			        tmp_list=[]
+			        if T[6] == "+":				# orientation
+			            L = T[3]				# left coord
+			            R = T[4]				# right coord
+			            prom= int(L)-1000                   #get 1000 bp upstream of L
+			        else:
+			            L = T[4]
+			            R = T[3]
+			            prom = int(L)+1000
+			        #print (prom, L)
+			        if prom > 0:
+			            tmp_list=[L, prom]
+			        else:
+			            tmp_list=[L, 0]
+			    if T[2]=='CDS' and count== 1:            #only get the protein name
+			        N = ""				     # sequence name
+			        n = T[-1].split(";")
+			        #print(n)
+			        if "Name" in T[-1]:			# has Name tag, # refers to last item in list
+			            for j in n:
+			                if "Name" in j:
+			                    N = j.split("=")[1]
+			                    #print(N)
+			                    break
+			                elif T[-1] != "":			# no name tag but not empty, use 1st
+			                    N = n[0].split("=")[1]
+			                else:
+			                    print ("No desc:",T)
+			        if N != "":
+			            #print(tmp_list)
+			            L2= tmp_list[0]
+			            prom2= tmp_list[1]
+			            oup.write("%s\t%s,%s\t%s\n" % (C,prom2,L2,N))
+			        count = 0
+			
+			else:
+			    pass
+			    #print(T, "line not used")
+			inl = inp.readline()
+			
+		print ("Done!")
+		
+	#clear spaces	
 	def clear_space(self,string): #returns tab-delimited
                 string = string.strip()
                 while "  " in string:
@@ -2433,6 +2508,8 @@ class fasta_manager:
 		print ("       NEED: gff")
 		print ("    gff_promoter_to_coord - convert GFF to promoter coord file")
 		print ("       NEED: gff")
+		print ("    gff_prom_to_coord2 - convert GFF to promoter coord file where")
+		print ("       promoter is not specified (get 1000bp upstream) - NEED: gff")
 		print ("    fasta_to_oneline - convert fasta file to one line")
 		print ("       format. Requires: -fasta. OPT: d")
 		print ("    fasta_to_phylip - NEED: fasta, OPT: nlen")
@@ -2731,6 +2808,11 @@ if __name__ == '__main__':
 	            print ("\nNeed gff file\n")
 	            manager.help()
 	        manager.gff_promoter_to_coord(gff)
+	elif function == "gff_prom_to_coord2":
+	        if gff == "":
+	           print ("\nNeed gff file\n")
+	           manager.help()
+	        manager.gff_prom_to_coord2(gff) 
 	elif function == "fasta_to_oneline":
 		if fasta == "":
 			print ("\nNeed fasta file\n")
