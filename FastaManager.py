@@ -741,7 +741,7 @@ class fasta_manager:
 			    C = T[0]					# chr
 			    #print (T[2])
 			    if T[2] == 'gene' and count== 0:
-			        count= count+1
+			        #count= count+1
 			        tmp_list=[]
 			        if T[6] == "+":				# orientation
 			            L = T[3]				# left coord
@@ -756,9 +756,9 @@ class fasta_manager:
 			            tmp_list=[L, prom]
 			        else:
 			            tmp_list=[L, 0]
-			    if T[2]=='CDS' and count== 1:            #only get the protein name
+			    #if T[2]=='mRNA' and count== 1:            #only get the protein name
 			        N = ""				     # sequence name
-			        n = T[-1].split(";")
+			        n = T[-1].split(";")     # get gene name
 			        #print(n)
 			        if "Name" in T[-1]:			# has Name tag, # refers to last item in list
 			            for j in n:
@@ -2217,9 +2217,9 @@ class fasta_manager:
 			sys.exit(0)
 		
 		fdict = self.fasta_to_dict(fasta,0,verbose,newline)
-		fkeys = fdict.keys()
-		fkeys.sort()
-		step  = len(fkeys)/by+1
+		fkeys = sorted(fdict.keys())
+		#fkeys.sort()
+		step  = int(len(fkeys)/by+1)
 		
 		c = 1 # increment, file number
 		print ("Number of seq   :",len(fkeys))

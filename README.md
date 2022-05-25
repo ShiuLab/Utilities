@@ -7,3 +7,16 @@ Scripts useful for manipulation and basic analysis of common file types
   -GFFUtil.py: Includes sort, merge, sort_merge, merge_depth, length, lengths, min_len, len_prcntl, compare_lens, prefix_id, loc_id, loc_id_keep, coords2gff, mask, overlap, and overlap+.
 
   -Map_PWM_biopy.py: Map PWM or dictionary of PWMs to a sequence in a fasta file.
+  
+## Running R on hpcc
+  1. Load the following modules:
+      
+      module load GCC/7.3.0-2.30
+      
+      module load OpenMPI/3.1.1
+      
+      module load R/3.5.1-X11-20180604
+      
+  2. Run the R script:
+  
+         R --vanilla --slave --args <arg 1> <arg 2> > script.R

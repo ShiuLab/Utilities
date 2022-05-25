@@ -1,95 +1,110 @@
-
-def print_help():
-	print'''
+"""
 Input file, -i
 
 Functions, -f:
-  sort		Sort a GFF file
-		  output: [gff_file].sort
-  merge		Merge features in a sorted GFF file
-		  output: [gff_file].merge
-  sort_merge	Sort and then merge a GFF file
-		  output: [gff_file].sort.merge
-  merge_depth	Count the number of features clustered in each line of a merged
+	sort		Sort a GFF file
+			output: [gff_file].sort
+	merge		Merge features in a sorted GFF file
+			output: [gff_file].merge
+	sort_merge	Sort and then merge a GFF file
+			output: [gff_file].sort.merge
+	merge_depth	Count the number of features clustered in each line of a merged
 		GFF file
-		  output: [gff_file].depth
-  length	Return the total length and length of features covered in the
+			output: [gff_file].depth
+	filter	Remove lines where gene and/or motif not in list provided.
+		req: 	-i (input gff file)
+		opt:	-genes and/or -str
+			output: [gff_file].filt
+	length	Return the total length and length of features covered in the
 		GFF file
-		  output: print to screen
-  lengths	Print the ID and length of features in a GFF file. In clude a
+			output: print to screen
+	lengths	Print the ID and length of features in a GFF file. Include a
 		-str flag to only include the lengths of that feature
-		  opt: -str,-com
-		  output: print to screen
-  min_len	Keep only features longer than a minimum length (-int). Include a 
+			opt: -str,-com
+			output: print to screen
+	min_len	Keep only features longer than a minimum length (-int). Include a 
 		-type flag to only keep features of that type.
-		  req: -int
-		  opt: -type,-com
-		  output: [gff_file].[int]_min_len
-  len_prcntl	Print the median values and 95th and 99th percentiles of 
+			req: -int
+			opt: -type,-com
+			output: [gff_file].[int]_min_len
+	len_prcntl	Print the median values and 95th and 99th percentiles of 
 		feature lengths in a GFF file. Feature types will be calculated
 		separately. Provide an integer value (-int) to calculate a 
 		different percentile.
-		  opt: -int
-		  output: print to screen
-		  SciPy module required (module load SciPy)
-  compare_lens	Compare the distributions of lengths in two gff files (-i, 
+			opt: -int
+			output: print to screen
+			SciPy module required (module load SciPy)
+	compare_lens	Compare the distributions of lengths in two gff files (-i, 
 		-gff2) using a Mann Whitney U test. Include a -str flag to only
 		test the lengths of a particular feature type.
-		  req: -gff2; opt: -str
-		  output: print to screen
-		  SciPy module required (module load SciPy)
-  prefix_id	Adds a prefix to the id in the "ID=" section of description
-		  req: -str
-		  output: print to screen
-  loc_id	Output location-based identifiers for each gff feature.
+			req: -gff2; opt: -str
+			output: print to screen
+			SciPy module required (module load SciPy)
+	prefix_id	Adds a prefix to the id in the "ID=" section of description
+			req: -str
+			output: print to screen
+	loc_id	Output location-based identifiers for each gff feature.
 		Identifiers take the form of "seq|start-end"
-		  output: [gff_file].loc_id
-  loc_id_keep	Keep feaures based on a list of loc_ids (-str; seq|start-end).
-		  req: -str
-		  opt: -out_str
-		  output: [gff_file].loc_id_keep OR [gff_file].[out_str].loc_id
-  loc_id2gff	Convert a 1col file with location IDs into a gff file. Include 
+			output: [gff_file].loc_id
+	loc_id_keep	Keep feaures based on a list of loc_ids (-str; seq|start-end).
+			req: -str
+			opt: -out_str
+			output: [gff_file].loc_id_keep OR [gff_file].[out_str].loc_id
+	loc_id2gff	Convert a 1col file with location IDs into a gff file. Include 
 		a -source or -type flag to change the source and type
 		fields in the resulting gff file.
-		  opt: -source,-type
-		  output: [loc_id_file].gff
-  coords2gff	Convert a 2col, 3col, or 4col coords file into a GFF file. 
+			opt: -source,-type
+			output: [loc_id_file].gff
+	coords2gff	Convert a 2col, 3col, or 4col coords file into a GFF file. 
 		Include a -source or -type flag to change the source and type
 		fields in the resulting gff file. The script will auto-detect 
 		2, 3, or 4-col format
 		 2col format: col1=seq/chr col2=start,end
 		 3col format: col1=seq/chr col2=start col3=end
 		 4col format: col1=seq/chr col2=start col3=end col4=region_name
-		  opt: -source,-type
-		  output: [coords_file].gff
-  mask		Mask input gff file with a secondary gff file
-		  req: -gff2
-		  output: print to screen
-  overlap	Identify GFF features that overlap with a secondary GFF file 
+			opt: -source,-type
+			output: [coords_file].gff
+	mapped2gff	Convert a mapping file into a GFF file using a coordinate key. 
+								req: -i -key
+								opt: -source,-type
+								output: [coords_file].gff
+	mapped2gff_internalkey	Convert a mapping file into a GFF when the first column
+								in the mapping file isn't a gene that needs to be converted into coords, but 
+								is the coords themselves. 
+								req: -i
+								opt: -source,-type
+								output: [coords_file].gff
+	mask		Mask input gff file with a secondary gff file
+			req: -gff2
+			output: print to screen
+	overlap	Identify GFF features that overlap with a secondary GFF file 
 		(-gff2); Feature type and location from secondary feature file
 		will be added to description in primary file in an "overlap=" 
 		section; Include a character string (-type) to only find 
 		overlaps with that feature type in the secondary file
-		  req: -gff2; opt: -str,-type
-		  output: [infile].[str_]ovrlp
-  overlap+	Describe the feature, length, start and end points, and
+			req: -gff2; opt: -str,-type
+			output: [infile].[str_]ovrlp
+	overlap+	Describe the feature, length, start and end points, and
 		proportion of total of overlap regions between a primary (-i)
 		and secondary (-gff2) gff file.
-		  req: -gff2
-		  output: print to screen
+			req: -gff2
+			output: print to screen
 
 Additional flags:
-  -str		character string
-  -int		integer
-  -gff2		secondary gff file
-  -com		comment character (default = #)
-  -source	string source input
-  -type		string type input
-  -out_sffx	output file suffix
-'''
+	-str		character string
+	-int		integer
+	-gff2		secondary gff file
+	-com		comment character (default = #)
+	-source	string source input
+	-type		string type input
+	-out_sffx	output file suffix
+
+	"""
+def print_help():
+	print(__doc__)
 
 def set_defaults_and_parse_args(argv_l):
-	function = input_file = char_str = gff2 = src = typ = intgr = o_str = None
+	function = input_file = char_str = gff2 = src = typ = intgr = key = genes = o_str = None
 	cm_chr = "#"
 	import sys
 	try:
@@ -107,13 +122,17 @@ def set_defaults_and_parse_args(argv_l):
 			elif sys.argv[i] == "-type":
 				typ = sys.argv[i+1]
 			elif sys.argv[i] == "-int":
-				intgr = sys.argv[i+1]	
+				intgr = sys.argv[i+1]
+			elif sys.argv[i] == "-key":
+				key = sys.argv[i+1]	
+			elif sys.argv[i] == "-genes":
+				genes = sys.argv[i+1]	
 			elif sys.argv[i] == "-out_str":
 				o_str = sys.argv[i+1]
-		return input_file,function,char_str,gff2,cm_chr,src,typ,intgr,o_str
+		return input_file,function,char_str,gff2,cm_chr,src,typ,intgr,key,genes,o_str
 	except:
 		print_help()
-		print "Error reading arguments!"
+		print("Error reading arguments!")
 		sys.exit()
 
 def gff2dict(gff_fl,cmm="#",strng=None):
@@ -312,9 +331,9 @@ def overlap_dict_by_indexing(gf1,gf2,span):
 					for comp_line in seq_index_d[seq][index]:
 						comparison_lines_set.add(comp_line)
 				except:
-					print lineLst
-					print seq,index
-					print all_indices
+					print(lineLst)
+					print(seq,index)
+					print(all_indices)
 			
 			for comp_line in comparison_lines_set:
 				start2 = comp_line[3]
@@ -361,13 +380,13 @@ def adjust_gff_limits(gff1_lineLst,gff2_lineLst):
 		new_lineLst = new_coords(gff1_lineLst,e2+1,e1)
 		return ["",new_lineLst]
 	else:
-		print "WHAT ELSE IS THERE?",gff1_lineLst,gff2_lineLst
+		print("WHAT ELSE IS THERE?",gff1_lineLst,gff2_lineLst)
 
 def region_of_overlap(gff1_line,gff2_line):
 	seq0 = gff1_line[0]
 	seq1 = gff2_line[0]
 	if seq0 != seq1:
-		print "Sequences are not identical!:",seq0,seq1
+		print("Sequences are not identical!:",seq0,seq1)
 	
 	start0 = int(gff1_line[3])
 	end0 = int(gff1_line[4])
@@ -392,14 +411,14 @@ def region_of_overlap(gff1_line,gff2_line):
 		region_start = start0
 		region_end = end1
 	else:
-		print "What's left?"
-		print gff1_line
-		print gff2_line
+		print("What's left?")
+		print(gff1_line)
+		print(gff2_line)
 	region_length = region_end-region_start+1
 	percent_of_total = float(region_length)/float(total_length)*100
 	# oof.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\n"%(frag_nm,region_start,region_end,feature,region_length,total_length,percent_of_total))
 	out_str = "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s"%(frag_nm,type,region_start,region_end,feature,region_length,total_length,percent_of_total)
-	print out_str
+	print(out_str)
 
 def function_sortGFF(fl,cmmnt,input_str):
 	out = open(fl+".sort","w")
@@ -513,6 +532,52 @@ def function_mergeGFF(fl):
 	# inp.close()
 	# return d_len,all_len
 
+def function_filter(gff,chr_str,genes):
+	import os.path
+	if chr_str == None:
+		chr_str = 'pass'
+	if genes == None:
+		genes = 'pass'
+	
+	# Read in genes / strings to keep
+	if os.path.isfile(genes):
+		with open(genes) as gene_file:
+			gene_list = gene_file.read().strip().splitlines()
+	else:
+		gene_list = [genes]
+	print('Number of genes to keep: %i' % len(gene_list))
+
+	if os.path.isfile(chr_str):
+		with open(chr_str) as str_file:
+			str_list = str_file.read().strip().splitlines()
+	else:
+		str_list = [chr_str]
+	print('Number of genes to keep: %i' % len(str_list))
+
+	count_all = 0
+	count_keep = 0
+	out = open(gff+'_filt', 'w')
+
+	with open(gff) as gff_file:
+	  for gff_line in gff_file:
+	    count_all += 1
+	    gff_split = gff_line.strip().split('\t')
+
+	    gene = gff_split[1]
+	    string = gff_split[2]
+	    
+	    if string in str_list or 'pass' in str_list:
+	      if gene in gene_list or 'pass' in gene_list:
+	        count_keep +=1
+	        out.write(gff_line)
+
+	    if count_all%10000 ==0:
+	      print('Finished: %i' % count_all)
+
+	print('Kept %i out of %i lines from the gff file' % (count_keep, count_all))
+
+
+
 def function_length(gff):
 	# d_ln,ln = featLenDict_and_fullLen(gff)
 	inp = open(gff)
@@ -525,7 +590,7 @@ def function_length(gff):
 		end = int(lineLst[4])
 		line_len = end-start+1
 		if line_len < 0:
-			print "NEGATIVE LENGTH:",line.strip()
+			print("NEGATIVE LENGTH:",line.strip())
 		else:
 			ln += line_len
 			if feat not in d_ln:
@@ -536,13 +601,13 @@ def function_length(gff):
 	
 	fl_nm = gff.split("/")[-1]
 	run_ln = 0
-	print "#file\tfeature\tlen\t%ofTot"
+	print("#file\tfeature\tlen\t%ofTot")
 	for feat in d_ln:
 		ft_len = d_ln[feat]
 		percn = round(float(ft_len)/float(ln)*100,2)
-		print "%s\t%s\t%s\t%s"%(fl_nm,feat,ft_len,percn)
+		print("%s\t%s\t%s\t%s"%(fl_nm,feat,ft_len,percn))
 		run_ln += ft_len
-	print "%s\ttotal\t%s\t%s"%(fl_nm,ln,run_ln)
+	print("%s\ttotal\t%s\t%s"%(fl_nm,ln,run_ln))
 
 def function_prefixID(gff,str):
 	inp = open(gff)
@@ -550,7 +615,7 @@ def function_prefixID(gff,str):
 		lineLst = line.strip().split("\t")
 		rpl_desc = lineLst[-1].replace("ID=","ID="+str)
 		lineLst[-1] = rpl_desc
-		print "\t".join(lineLst)
+		print("\t".join(lineLst))
 
 def function_maskGFF(gff,gff2,feat_type,out_str):
 	if out_str == None:
@@ -630,7 +695,7 @@ def function_overlap(gff,gff2,out_str,feat_type):
 def function_overlapPlus(gff,gff2):
 	index_span = 10000
 	overlap_d = overlap_dict_by_indexing(gff,gff2,index_span)
-	print "#id\tregion_type\tovrlp_start\tovrlp_end\tovrlp_feat\tovrlp_len\ttotal_len\tper_of_total"
+	print("#id\tregion_type\tovrlp_start\tovrlp_end\tovrlp_feat\tovrlp_len\ttotal_len\tper_of_total")
 	inp = open(gff)
 	for line in inp:
 		lineLst = line.strip().split("\t")
@@ -655,13 +720,11 @@ def function_compareLens(gff,gff2,feat_type):
 	m2,n2,a2 = calc_med_len_ave(gff2_len_l)
 	pVal = stats.mannwhitneyu(gff1_len_l,gff2_len_l)[1]
 	
-	print
-	print "stat\tgff1\tgff2"
-	print "med\t%s\t%s"%(m1,m2)
-	print "n\t%s\t%s"%(n1,n2)
-	print "ave\t%s\t%s"%(a1,a2)
-	print
-	print "MWU p-value:",pVal
+	print("stat\tgff1\tgff2")
+	print("med\t%s\t%s"%(m1,m2))
+	print("n\t%s\t%s"%(n1,n2))
+	print("ave\t%s\t%s"%(a1,a2))
+	print("MWU p-value:",pVal)
 
 def function_coords2gff(coords,source,type):
 	if source == None:
@@ -688,6 +751,141 @@ def function_coords2gff(coords,source,type):
 		out.write(out_line+"\n") 
 	out.close()
 	inp.close()
+
+def function_mapped2gff(coords, key, source, type):
+	if source == None:
+		source = "coords"
+	if type == None:
+		type = "coords"
+	import os
+	full_pth_crds = os.path.abspath(coords)
+	
+	#Make a dictionary with all coordinates from key
+	coord_dic = {}
+	for l in open(key, 'r'):
+			line = l.strip().split("\t")
+			AT = line[3]
+			chromo = l[3:4]
+			promoter_coords = str(chromo) + "|" + str(line[1]) + "|" + str(line[2])
+			coord_dic[AT] = promoter_coords
+
+	gff_line = "%s\t%s\t%s\t%s\t%s\t.\t%s\t.\tID=%s;coords_file=%s"
+	inp = open(coords)
+	out = open(coords+".gff","w")
+	count = 0
+	for line in inp:
+		if not line[0].isdigit():
+				seq,k_start,k_end,direction,kmer,score,pval = line.strip().split("\t")
+				try:
+					coords = coord_dic[seq]
+					x = coords.strip().split("|")
+					chr = "chr" + str(x[0])
+					if direction == "1":
+							d = "+"
+					elif direction == "-1":
+							d = "-"
+					else:
+							d = "."
+					start = int(x[1]) + int(k_start)
+					end = int(x[1]) + int(k_end)
+					loc_id = "%s|%s-%s"%(seq,start,end)
+					out_line = gff_line%(chr,seq,kmer,start,end,d,loc_id,full_pth_crds)
+					out.write(out_line+"\n") 
+				except:
+								count = count + 1
+	print("Genes that were not found in conversion file: " + str(count))
+	out.close()
+	inp.close()
+
+def function_mapped2gff_internalkey(coords, source, type):
+	if source == None:
+		source = "coords"
+	if type == None:
+		type = "coords"
+	import os
+	full_pth_crds = os.path.abspath(coords)
+	
+
+	gff_line = "%s\t%s\t%s\t%s\t%s\t.\t%s\t.\tID=%s;coords_file=%s"
+	inp = open(coords)
+	out = open(coords+".gff","w")
+	count = 0
+	for line in inp:
+		if not line[0].isdigit():
+				seq,k_start,k_end,direction,kmer,score,pval = line.strip().split("\t")
+				chro = seq.split("|")[0]
+				start_stop = seq.split("|")[1]
+				start = start_stop.split("-")[0]
+
+				if direction == "1":
+						d = "+"
+				elif direction == "-1":
+						d = "-"
+				else:
+						d = "."
+				kmer_start = int(start) + int(k_start)
+				kmer_end = int(start) + int(k_end)
+				loc_id = "%s|%s-%s"%(seq,kmer_start,kmer_end)
+				out_line = gff_line%(chro,seq,kmer,kmer_start,kmer_end,d,loc_id,full_pth_crds)
+				out.write(out_line+"\n") 
+
+	out.close()
+	inp.close()
+
+
+def function_mapped2gff2(coords, key, source, type):
+		import numpy as np
+		if source == None:
+			source = "coords"
+		if type == None:
+			type = "coords"
+		import os
+		full_pth_crds = os.path.abspath(coords)
+		
+		#Make a dictionary with all coordinates from key
+		coord_dic = {}
+		for l in open(key, 'r'):
+					line = l.strip().split("\t")
+					AT = line[3]
+					chromo = l[3:4]
+					promoter_coords = str(chromo) + "|" + str(line[1]) + "|" + str(line[2])
+					coord_dic[AT] = promoter_coords
+		gff_line = "%s\t%s\t%s\t%s\t%s\t.\t%s\t.\tID=%s;coords_file=%s"
+		inp = open(coords)
+		out = open(coords+".gff","w")
+		count = 0
+		for line in inp:
+			if not line[0].isdigit() and not line.startswith('Seq'):
+					seq,kmer,motif_seq,hit_seq,k_start,hit_score,threshold = line.strip().split("\t")
+					seq = seq[:-3]
+					dir = np.sign(int(k_start))
+					if dir == 1:
+							k_end = int(k_start) + len(hit_seq)
+					if dir == -1:
+							k_start = 1000 + int(k_start)
+							k_end = k_start + len(hit_seq)
+					
+					try:
+									coords = coord_dic[seq]
+									x = coords.strip().split("|")
+									chr = "chr" + str(x[0])
+									if dir == 1:
+											d = "+"
+									elif dir == -1:
+											d = "-"
+									else:
+											d = "."
+									start = int(x[1]) + int(k_start)
+									end = int(x[1]) + int(k_end)
+									loc_id = "%s|%s-%s"%(seq,start,end)
+									out_line = gff_line%(chr,seq,kmer,start,end,d,loc_id,full_pth_crds)
+									out.write(out_line+"\n") 
+					except:
+									count = count + 1
+		print("Genes that were not found in conversion file: " + str(count))
+		out.close()
+		inp.close()
+
 
 def function_locId2gff(loc_ids,source,type):
 	if source == None:
@@ -722,7 +920,7 @@ def function_lengths(gff,str,com):
 			loc_id = make_loc_id(lineLst)
 			reg_len = int(end)-int(start)+1
 			if str == None or type == str:
-				print "%s\t%s\t%s\t%s"%(loc_id,id,type,reg_len)
+				print("%s\t%s\t%s\t%s"%(loc_id,id,type,reg_len))
 	inp.close()
 
 def function_lenPercentiles(gff,intgr,com):
@@ -743,9 +941,9 @@ def function_lenPercentiles(gff,intgr,com):
 	inp.close()
 	
 	if intgr != None:
-		print "feat\tmed\t75per\t95per\t99per\t%sper\tmax"%(intgr)
+		print("feat\tmed\t75per\t95per\t99per\t%sper\tmax"%(intgr))
 	else:
-		print "feat\tmed\t75per\t95per\t99per\tmax"
+		print("feat\tmed\t75per\t95per\t99per\tmax")
 	import numpy
 	for key in ft_lens_d:
 		lens_l = ft_lens_d[key]
@@ -759,9 +957,9 @@ def function_lenPercentiles(gff,intgr,com):
 		max_val = max(fl_l)
 		if intgr != None:
 			perX = numpy.percentile(fl_l,intgr)
-			print "%s\t%s\t%s\t%s\t%s\t%s\t%s"%(key,med,per75,per95,per99,perX,max_val)
+			print("%s\t%s\t%s\t%s\t%s\t%s\t%s"%(key,med,per75,per95,per99,perX,max_val))
 		else:
-			print "%s\t%s\t%s\t%s\t%s\t%s"%(key,med,per75,per95,per99,max_val)
+			print("%s\t%s\t%s\t%s\t%s\t%s"%(key,med,per75,per95,per99,max_val))
 			
 	# inp = open(gff)
 	# ft_d = {}
@@ -802,7 +1000,7 @@ def function_mergeDepth(gff,com):
 	out.close()
 	inp.close()
 	
-	print "Maximum merge depth:",max_depth
+	print("Maximum merge depth:",max_depth)
 
 def function_locID(gff,com):
 	inp = open(gff)
@@ -845,60 +1043,70 @@ def main():
 		print_help()
 		sys.exit()
 	
-	infile,func,chr_str,gff2_file,com_char,inp_src,inp_typ,inp_int,out_str = set_defaults_and_parse_args(sys.argv)
+	infile,func,chr_str,gff2_file,com_char,inp_src,inp_typ,inp_int,key,genes,out_str = set_defaults_and_parse_args(sys.argv)
 	
 	if func == None or infile == None:
 		print_help()
-		print "Function (-f) and input file (-i) required!"
+		print("Function (-f) and input file (-i) required!")
 		sys.exit()
 	elif func == "sort":
 		function_sortGFF(infile,com_char,chr_str)
 	elif func == "merge":
 		function_mergeGFF(infile)
 	elif func == "sort_merge":
-		print "Sorting GFF file"
+		print("Sorting GFF file")
 		function_sortGFF(infile,com_char,chr_str)
-		print "Merging GFF file"
+		print("Merging GFF file")
 		function_mergeGFF(infile+".sort")
-		print "Done!"
+		print("Done!")
+	elif func == "filter":
+		print("Filtering GFF file")
+		function_filter(infile,chr_str,genes)
+		print("Done!")
 	elif func == "length":
 		function_length(infile)
 	elif func == "prefix_id":
 		if chr_str == None:
 			print_help()
-			print "Character string (-str) required to run add_prefix_to_id function"
+			print("Character string (-str) required to run add_prefix_to_id function")
 		else:
 			function_prefixID(infile,chr_str)
 	elif func == "mask":
 		if gff2_file == None:
 			print_help()
-			print "Secondary gff file (-gff2) required to run mask function"
+			print("Secondary gff file (-gff2) required to run mask function")
 			sys.exit()
 		else:
 			function_maskGFF(infile,gff2_file,inp_typ,chr_str)
 	elif func == "overlap":
 		if gff2_file == None:
 			print_help()
-			print "Secondary gff file (-gff2) required to run overlap function"
+			print("Secondary gff file (-gff2) required to run overlap function")
 			sys.exit()
 		else:
 			function_overlap(infile,gff2_file,chr_str,inp_typ)
 	elif func == "overlap+":
 		if gff2_file == None:
 			print_help()
-			print "Secondary gff file (-gff2) required to run overlap+ function"
+			print("Secondary gff file (-gff2) required to run overlap+ function")
 			sys.exit()
 		else:
 			function_overlapPlus(infile,gff2_file)
 	elif func == "compare_lens":
 		if gff2_file == None:
 			print_help()
-			print "Secondary gff file (-gff2) required to run compare_lens function"
+			print("Secondary gff file (-gff2) required to run compare_lens function")
 			sys.exit()
 		else:
 			function_compareLens(infile,gff2_file,chr_str)
 	elif func == "coords2gff":
 		function_coords2gff(infile,inp_src,inp_typ)
+	elif func == "mapped2gff":
+		function_mapped2gff(infile,key, inp_src,inp_typ)
+	elif func == "mapped2gff2":
+		function_mapped2gff2(infile,key, inp_src,inp_typ)
+	elif func == "mapped2gff_internalkey":
+		function_mapped2gff_internalkey(infile, inp_src,inp_typ)
 	elif func == "lengths":
 		function_lengths(infile,chr_str,com_char)
 	elif func == "len_prcntl":
@@ -906,7 +1114,7 @@ def main():
 	elif func == "min_len":
 		if inp_int == None:
 			print_help()
-			print "Minimum length (-int) required to run min_len function"
+			print("Minimum length (-int) required to run min_len function")
 			sys.exit()
 		else:
 			function_minLen(infile,inp_int,inp_typ,com_char)
@@ -920,7 +1128,7 @@ def main():
 		function_locId2gff(infile,inp_src,inp_typ)
 	else:
 		print_help()
-		print "Unrecognized function:",func
+		print("Unrecognized function:",func)
 
 if __name__ == "__main__":
 	main()
